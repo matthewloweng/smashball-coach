@@ -45,6 +45,10 @@
         <ion-icon slot="start" name="download" />
         Counts (CSV)
       </ion-button>
+      <ion-button fill="outline" size="small" (click)="copyCsv()">
+        <ion-icon slot="start" name="copy-outline" />
+        {{ copied() ? 'Copied' : 'Copy counts' }}
+      </ion-button>
       <ion-button fill="outline" size="small" (click)="exportJson()">
         <ion-icon slot="start" name="download" />
         All data (JSON)

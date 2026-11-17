@@ -13,7 +13,7 @@ import {
   ViewWillEnter,
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { chevronForward, download } from 'ionicons/icons';
+import { chevronForward, copyOutline, download } from 'ionicons/icons';
 import { Session } from '../../core/models/session.models';
 import { TemplateService } from '../../core/services/template.service';
 import { BarChartComponent, BarDatum } from '../../shared/components/bar-chart.component';
@@ -74,7 +74,7 @@ export class HistoryPage implements ViewWillEnter {
   protected readonly series = computed(() => this.history.countSeries(this.sessions()));
 
   constructor() {
-    addIcons({ chevronForward, download });
+    addIcons({ chevronForward, download, copyOutline });
   }
 
   async ionViewWillEnter(): Promise<void> {
@@ -101,6 +101,19 @@ export class HistoryPage implements ViewWillEnter {
       this.history.exportCountsCsv(this.sessions()),
       'text/csv',
     );
+  }
+
+  protected readonly copied = signal(false);
+
+  /** Copy works where downloads are blocked (e.g. inside an embedded viewer). */
+  protected async copyCsv(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(this.history.exportCountsCsv(this.sessions()));
+      this.copied.set(true);
+      setTimeout(() => this.copied.set(false), 2000);
+    } catch {
+      this.copied.set(false);
+    }
   }
 
   protected exportJson(): void {
