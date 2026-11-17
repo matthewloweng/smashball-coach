@@ -1,0 +1,127 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/history" text="" />
+    </ion-buttons>
+    <ion-title>{{ title() }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (missing()) {
+    <p class="card muted">This practice is no longer on this phone.</p>
+  }
+
+  @if (summary(); as s) {
+    <div class="card">
+      <h2>{{ s.plan?.title }}</h2>
+      <p class="muted">
+        {{ s.session.startedAt | date: 'EEEE d MMMM y, h:mm a' }}
+        @if (s.session.endedAt) {
+          – {{ s.session.endedAt | date: 'h:mm a' }}
+        }
+      </p>
+    </div>
+
+    <p class="section-title">Games and closeness</p>
+    @for (c of s.courts; track c.courtId) {
+      <div class="card">
+        <h2>{{ c.label }}</h2>
+        <div class="stats">
+          <div>
+            <strong>{{ c.games.length }}</strong>
+            <span class="muted">games finished</span>
+          </div>
+          <div>
+            <strong>{{ c.adaptationsTriggered }}</strong>
+            <span class="muted">adaptation rules switched on</span>
+          </div>
+          <div>
+            <strong>{{ c.closeGameShare === null ? '–' : (c.closeGameShare | percent) }}</strong>
+            <span class="muted">games won by 2 or less</span>
+          </div>
+        </div>
+        @if (c.games.length) {
+          <table>
+            <thead>
+              <tr>
+                <th>Game</th>
+                <th class="num">Score</th>
+                <th>Winner</th>
+                <th class="num">Avg gap</th>
+                <th class="num">Max gap</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (g of c.games; track g.endedAt) {
+                <tr>
+                  <td>{{ gameName(g.gameId) }}</td>
+                  <td class="num">{{ g.score.A }}-{{ g.score.B }}</td>
+                  <td>{{ winnerLabel(g.gameId, g.winner) }}</td>
+                  <td class="num">{{ g.meanMargin }}</td>
+                  <td class="num">{{ g.maxMargin }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="muted">
+            No finished games on this court. (Monarch games are tracked live, not as finished
+            games.)
+          </p>
+        }
+      </div>
+    }
+
+    @if (s.counts.length) {
+      <p class="section-title">Contact counts</p>
+      @for (c of s.counts; track c.run.runId) {
+        <div class="card">
+          <h2>{{ c.run.context }}</h2>
+          <table>
+            <tbody>
+              @for (entry of c.derived; track entry.key) {
+                <tr>
+                  <td>{{ entry.label }}</td>
+                  <td class="num">
+                    <strong>{{ entry.display }}</strong>
+                  </td>
+                </tr>
+              }
+              <tr>
+                <td>Contacts / rallies / pass-set-attack</td>
+                <td class="num">
+                  {{ c.run.values['contacts'] ?? 0 }} / {{ c.run.values['rallies'] ?? 0 }} /
+                  {{ c.run.values['threeContact'] ?? 0 }}
+                </td>
+              </tr>
+              <tr>
+                <td>Attacks faced / dug</td>
+                <td class="num">
+                  {{ c.run.values['attacksFaced'] ?? 0 }} / {{ c.run.values['attacksDug'] ?? 0 }}
+                </td>
+              </tr>
+              <tr>
+                <td>Longest rally / players</td>
+                <td class="num">
+                  {{ c.run.values['longestRally'] ?? 0 }} / {{ c.run.values['players'] ?? 0 }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    @if (s.session.notes) {
+      <p class="section-title">Session log</p>
+      <div class="card notes">{{ s.session.notes }}</div>
+    }
+
+    <div class="danger">
+      <ion-button fill="clear" color="danger" size="small" (click)="remove()"
+        >Delete this practice</ion-button
+      >
+    </div>
+  }
+</ion-content>

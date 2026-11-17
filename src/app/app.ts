@@ -1,12 +1,9 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { IonApp, IonRouterOutlet } from '@ionic/angular';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
-  styleUrl: './app.scss',
-  templateUrl: './app.html',
+  imports: [IonApp, IonRouterOutlet],
+  template: `<ion-app><ion-router-outlet /></ion-app>`,
 })
-export class App {
-  protected readonly title = signal('smashball-coach');
-}
+export class App {}

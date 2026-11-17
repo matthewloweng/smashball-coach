@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" text="" />
+    </ion-buttons>
+    <ion-title>P{{ store.plan()?.number }} · {{ store.plan()?.title }}</ion-title>
+    <ion-buttons slot="end">
+      <app-settings />
+      <ion-button (click)="finish()">Finish</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <app-block-bar (finish)="finish()" />
+  <ion-toolbar>
+    <ion-segment [value]="tab()" (ionChange)="setTab($event.detail.value)">
+      <ion-segment-button value="plan"><ion-label>Plan</ion-label></ion-segment-button>
+      <ion-segment-button value="courts"><ion-label>Score</ion-label></ion-segment-button>
+      <ion-segment-button value="count"><ion-label>Count</ion-label></ion-segment-button>
+      <ion-segment-button value="levels"><ion-label>Levels</ion-label></ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @switch (tab()) {
+    @case ('plan') {
+      <app-plan-tab (goTo)="tab.set($event)" />
+      <div class="card notes">
+        <ion-textarea
+          label="Session log (no names)"
+          labelPlacement="stacked"
+          placeholder="Which rules kicked in, what players said or did that showed a read..."
+          [autoGrow]="true"
+          [value]="store.session()?.notes ?? ''"
+          [debounce]="600"
+          (ionInput)="notes($event.detail.value)"
+        />
+      </div>
+    }
+    @case ('courts') {
+      @for (c of store.courts(); track c.id) {
+        <app-court-card [courtId]="c.id" />
+      }
+      <div class="add-court">
+        <ion-button fill="outline" size="small" (click)="store.addCourt()">Add a court</ion-button>
+      </div>
+    }
+    @case ('count') {
+      <app-tally-tab />
+    }
+    @case ('levels') {
+      <app-levels-tab />
+    }
+  }
+</ion-content>

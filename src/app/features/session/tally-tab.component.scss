@@ -1,0 +1,164 @@
+.flush {
+  margin: 0 0 4px;
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+.contexts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+
+  button {
+    border: 1.5px solid var(--ion-color-primary);
+    color: var(--ion-color-primary);
+    background: transparent;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 0.9rem;
+
+    &.on {
+      background: var(--ion-color-primary);
+      color: var(--ion-color-primary-contrast);
+    }
+  }
+}
+
+.run-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  strong,
+  .small {
+    display: block;
+  }
+}
+
+.clock {
+  font-size: 2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+
+  &.done {
+    color: var(--team-b);
+    font-size: 1.4rem;
+  }
+}
+
+.taps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.tap {
+  position: relative;
+}
+
+.tap-main {
+  width: 100%;
+  min-height: 96px;
+  border-radius: 14px;
+  border: none;
+  background: var(--team-a-soft);
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  touch-action: manipulation;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.tap-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.tap-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0 6px;
+}
+
+.tap-minus {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(127, 127, 127, 0.18);
+  color: inherit;
+  display: grid;
+  place-items: center;
+}
+
+.stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid rgba(127, 127, 127, 0.15);
+}
+
+.stepper-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ion-color-primary);
+    background: transparent;
+    color: var(--ion-color-primary);
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+  }
+}
+
+.stepper-value {
+  min-width: 2ch;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.derived {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  text-align: center;
+
+  span {
+    display: block;
+  }
+}
+
+.derived-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.earlier {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+}

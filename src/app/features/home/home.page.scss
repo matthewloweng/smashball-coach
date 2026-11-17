@@ -1,0 +1,55 @@
+.resume {
+  display: flex;
+  width: calc(100% - 24px);
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  border: 2px solid var(--ion-color-primary);
+  color: inherit;
+  font: inherit;
+
+  strong,
+  span span {
+    display: block;
+  }
+}
+
+.plan-head {
+  display: flex;
+  gap: 12px;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.plan-number {
+  flex: 0 0 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  color: var(--ion-color-primary-contrast);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.plan-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.footnote {
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 8px 24px 32px;
+}

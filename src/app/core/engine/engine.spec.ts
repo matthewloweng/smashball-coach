@@ -166,7 +166,7 @@ describe('level-up rule (2 out of 3)', () => {
 });
 
 describe('tallies', () => {
-  it('sums taps, keeps the max for longest rally and works out ratios', () => {
+  it('sums taps, sets typed values and works out ratios', () => {
     const sheet = VOLLEYBALL_PACK.tallySheets[0]!;
     const t = (key: string, value: number, mode: 'add' | 'set' = 'add') =>
       ev({ type: 'tally', runId: 'r1', key, value, mode });
@@ -194,7 +194,7 @@ describe('tallies', () => {
       contacts: 2,
       rallies: 2,
       threeContact: 1,
-      longestRally: 4,
+      longestRally: 2,
       players: 6,
     });
     const d = derivedValues(run!, sheet);

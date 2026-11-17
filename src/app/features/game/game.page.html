@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" text="" />
+    </ion-buttons>
+    <ion-title>{{ game().code }} rules</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="card">
+    <h2>{{ game().code }} {{ game().name }}</h2>
+    <p class="meta muted">
+      @if (level(); as l) {
+        Level {{ l.code }} ·
+      }
+      {{ game().focus.join(', ') }} · 4Rs: {{ game().fourRs }}
+    </p>
+    @if (game().diagram; as d) {
+      <app-court-diagram [diagram]="d" />
+    }
+  </div>
+
+  <p class="section-title">Set-up</p>
+  <div class="card">
+    <dl>
+      <dt>Format</dt>
+      <dd>{{ game().format }}</dd>
+      <dt>Players</dt>
+      <dd>{{ game().players }}</dd>
+    </dl>
+  </div>
+
+  <p class="section-title">Rules</p>
+  <div class="card">
+    <ul>
+      @for (r of game().rules; track r) {
+        <li>{{ r }}</li>
+      }
+    </ul>
+  </div>
+
+  <p class="section-title">Adaptation rules (the app flags these live)</p>
+  <div class="card">
+    @for (a of adaptations(); track a.id) {
+      <div class="rule">
+        <strong>{{ a.when }}</strong>
+        <span>{{ a.effect }}</span>
+      </div>
+    }
+    @for (a of rotations(); track a.id) {
+      <div class="rule">
+        <strong>{{ a.when }}</strong>
+        <span>{{ a.effect }}</span>
+      </div>
+    }
+  </div>
+
+  <p class="section-title">REAR design</p>
+  <div class="card">
+    <dl>
+      <dt>Representation</dt>
+      <dd>{{ game().rear.representation }}</dd>
+      <dt>Exaggeration</dt>
+      <dd>{{ game().rear.exaggeration }}</dd>
+      <dt>Adaptation</dt>
+      <dd>{{ game().rear.adaptation }}</dd>
+      <dt>Rotation</dt>
+      <dd>{{ game().rear.rotation }}</dd>
+    </dl>
+  </div>
+
+  <p class="section-title">Huddle questions</p>
+  <div class="card">
+    <ul>
+      @for (q of game().huddleQuestions; track q.text) {
+        <li>
+          <strong>{{ q.concept }}:</strong> {{ q.text }}
+        </li>
+      }
+    </ul>
+  </div>
+</ion-content>

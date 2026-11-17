@@ -1,0 +1,40 @@
+// Brand and team colours. Team A / Team B match the court diagrams on the project site.
+:root {
+  --ion-color-primary: #1f5aa6;
+  --ion-color-primary-rgb: 31, 90, 166;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #1b4f92;
+  --ion-color-primary-tint: #356bb0;
+
+  --team-a: #1f5aa6;
+  --team-a-soft: rgba(31, 90, 166, 0.12);
+  --team-b: #d4520f;
+  --team-b-soft: rgba(212, 82, 15, 0.12);
+  --alert-bg: #fff4d6;
+  --alert-border: #f2b705;
+  --alert-text: #4a3a00;
+  --rotation-bg: #e7f1e9;
+  --rotation-border: #2b8a3e;
+  --muted: #5f6b7a;
+  --card-radius: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-color-primary: #6fa0e6;
+    --ion-color-primary-rgb: 111, 160, 230;
+    --ion-color-primary-contrast: #0b1626;
+    --ion-color-primary-shade: #6290cf;
+    --ion-color-primary-tint: #7daae9;
+    --team-a: #6fa0e6;
+    --team-a-soft: rgba(111, 160, 230, 0.16);
+    --team-b: #f08a52;
+    --team-b-soft: rgba(240, 138, 82, 0.16);
+    --alert-bg: #3a3214;
+    --alert-border: #c99a12;
+    --alert-text: #fbe9b0;
+    --rotation-bg: #173322;
+    --muted: #9aa6b4;
+  }
+}

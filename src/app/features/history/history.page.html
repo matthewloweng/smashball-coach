@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" text="" />
+    </ion-buttons>
+    <ion-title>History</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (loaded() && sessions().length === 0) {
+    <p class="empty muted">
+      No practices yet. Finished practices show up here with their scores and counts.
+    </p>
+  }
+
+  @if (series().length) {
+    <p class="section-title">Contact counts across practices</p>
+    <div class="card">
+      @for (m of metrics; track m.key) {
+        <app-bar-chart [title]="m.label" [data]="chart(m.key)" [format]="m.format" />
+      }
+    </div>
+  }
+
+  @if (sessions().length) {
+    <p class="section-title">Practices</p>
+    @for (s of sessions(); track s.id) {
+      <button class="card row" [routerLink]="['/history', s.id]">
+        <span>
+          <strong>{{ planTitle(s) }}</strong>
+          <span class="muted">
+            {{ s.startedAt | date: 'EEE d MMM, h:mm a' }}
+            @if (!s.endedAt) {
+              · running
+            }
+          </span>
+        </span>
+        <ion-icon name="chevron-forward" />
+      </button>
+    }
+
+    <div class="exports">
+      <ion-button fill="outline" size="small" (click)="exportCsv()">
+        <ion-icon slot="start" name="download" />
+        Counts (CSV)
+      </ion-button>
+      <ion-button fill="outline" size="small" (click)="exportJson()">
+        <ion-icon slot="start" name="download" />
+        All data (JSON)
+      </ion-button>
+    </div>
+  }
+</ion-content>

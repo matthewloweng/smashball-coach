@@ -1,0 +1,66 @@
+<div class="card">
+  <p class="section-title flush">Level-up rule</p>
+  <p class="small">Move up when {{ rule }}. Tap after each serve-receive.</p>
+
+  @if (courts().length > 1) {
+    <div class="courts" role="radiogroup" aria-label="Court">
+      @for (c of courts(); track c.id) {
+        <button
+          role="radio"
+          [attr.aria-checked]="selectedCourt() === c.id"
+          [class.on]="selectedCourt() === c.id"
+          (click)="courtId.set(c.id)"
+        >
+          {{ c.label }}
+        </button>
+      }
+    </div>
+  }
+
+  <div class="count">
+    <span>{{ unitLabel() }}s on this court</span>
+    <span class="stepper">
+      <button (click)="setUnits(-1)" aria-label="Fewer"><ion-icon name="remove" /></button>
+      <strong>{{ unitCount() }}</strong>
+      <button (click)="setUnits(1)" aria-label="More"><ion-icon name="add" /></button>
+    </span>
+  </div>
+</div>
+
+@for (u of units(); track u.unit) {
+  <div class="card unit" [attr.data-advice]="u.advice">
+    <div class="unit-head">
+      <strong>{{ u.unit }}</strong>
+      <span class="small muted">
+        @if (u.level > 0) {
+          Up {{ u.level }}
+        } @else if (u.level < 0) {
+          Down {{ -u.level }}
+        } @else {
+          Starting level
+        }
+      </span>
+      <span class="slots" aria-label="Last three serve-receives">
+        @for (s of slots(u.recent); track $index) {
+          <span class="slot" [class.yes]="s === true" [class.no]="s === false"></span>
+        }
+      </span>
+    </div>
+    <div class="buttons">
+      <button class="yes" (click)="attempt(u.unit, true)">
+        <ion-icon name="checkmark" /> Attack
+      </button>
+      <button class="no" (click)="attempt(u.unit, false)">
+        <ion-icon name="close" /> No attack
+      </button>
+    </div>
+    <p class="advice small">{{ advice[u.advice] }}</p>
+    @if (u.advice === 'up') {
+      <ion-button size="small" (click)="change(u.unit, 'up')">Done: moved up</ion-button>
+    } @else if (u.advice === 'down') {
+      <ion-button size="small" fill="outline" (click)="change(u.unit, 'down')"
+        >Done: aid given back</ion-button
+      >
+    }
+  </div>
+}

@@ -1,0 +1,138 @@
+.flush {
+  margin: 0 0 4px;
+}
+
+.small {
+  font-size: 0.85rem;
+}
+
+.courts {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0;
+
+  button {
+    flex: 1;
+    border: 1.5px solid var(--ion-color-primary);
+    color: var(--ion-color-primary);
+    background: transparent;
+    border-radius: 999px;
+    padding: 6px;
+    font: inherit;
+
+    &.on {
+      background: var(--ion-color-primary);
+      color: var(--ion-color-primary-contrast);
+    }
+  }
+}
+
+.count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  button {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ion-color-primary);
+    background: transparent;
+    color: var(--ion-color-primary);
+    display: grid;
+    place-items: center;
+  }
+}
+
+.unit {
+  border-left: 5px solid transparent;
+
+  &[data-advice='up'] {
+    border-left-color: var(--rotation-border);
+  }
+
+  &[data-advice='down'] {
+    border-left-color: var(--team-b);
+  }
+}
+
+.unit-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  strong {
+    font-size: 1.1rem;
+  }
+
+  .slots {
+    margin-left: auto;
+  }
+}
+
+.slots {
+  display: flex;
+  gap: 6px;
+}
+
+.slot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--muted);
+
+  &.yes {
+    background: var(--rotation-border);
+    border-color: var(--rotation-border);
+  }
+
+  &.no {
+    background: var(--team-b);
+    border-color: var(--team-b);
+  }
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+
+  button {
+    min-height: 56px;
+    border-radius: 12px;
+    border: none;
+    font: inherit;
+    font-weight: 700;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    touch-action: manipulation;
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
+  .yes {
+    background: var(--rotation-border);
+    color: #fff;
+  }
+
+  .no {
+    background: var(--team-b-soft);
+    color: var(--team-b);
+  }
+}
+
+.advice {
+  margin: 8px 0 4px;
+}

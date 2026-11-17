@@ -1,0 +1,89 @@
+<div class="card">
+  <p class="section-title flush">{{ sheet.name }} · {{ sheet.durationSec / 60 }} minutes</p>
+  <p class="small muted">{{ sheet.instructions }}</p>
+
+  <div class="contexts" role="radiogroup" aria-label="What are you watching?">
+    @for (c of contexts(); track c) {
+      <button
+        role="radio"
+        [attr.aria-checked]="context() === c"
+        [class.on]="context() === c"
+        (click)="context.set(c)"
+      >
+        {{ c }}
+      </button>
+    }
+  </div>
+
+  <ion-button expand="block" (click)="startRun()">
+    <ion-icon slot="start" name="stopwatch" />
+    Start a new count
+  </ion-button>
+</div>
+
+@if (run(); as r) {
+  <div class="card">
+    <div class="run-head">
+      <span>
+        <strong>{{ r.context }}</strong>
+        <span class="small muted">Count {{ runs().length }} this practice</span>
+      </span>
+      <span class="clock" [class.done]="(remaining() ?? 1) <= 0">{{ clock() }}</span>
+    </div>
+
+    <div class="taps">
+      @for (c of taps; track c.key) {
+        <div class="tap">
+          <button class="tap-main" (click)="tap(c, 1)">
+            <span class="tap-value">{{ value(c.key) }}</span>
+            <span class="tap-label">{{ c.label }}</span>
+          </button>
+          <button
+            class="tap-minus"
+            (click)="tap(c, -1)"
+            [attr.aria-label]="'Remove one ' + c.label"
+          >
+            <ion-icon name="remove" />
+          </button>
+        </div>
+      }
+    </div>
+
+    @for (c of numbers; track c.key) {
+      <div class="stepper">
+        <span>{{ c.label }}</span>
+        <span class="stepper-controls">
+          <button (click)="setNumber(c, -1)" [attr.aria-label]="'Lower ' + c.label">
+            <ion-icon name="remove" />
+          </button>
+          <span class="stepper-value">{{ value(c.key) }}</span>
+          <button (click)="setNumber(c, 1)" [attr.aria-label]="'Raise ' + c.label">
+            <ion-icon name="add" />
+          </button>
+        </span>
+      </div>
+    }
+
+    <div class="derived">
+      @for (d of derived(); track d.key) {
+        <div>
+          <span class="derived-value">{{ d.display }}</span>
+          <span class="small muted">{{ d.label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (runs().length > 1) {
+  <p class="section-title">Earlier counts this practice</p>
+  @for (r of runs().slice(0, -1); track r.runId) {
+    <div class="card earlier small">
+      <strong>{{ r.context }}</strong>
+      <span class="muted">
+        {{ r.values['contacts'] ?? 0 }} contacts · {{ r.values['rallies'] ?? 0 }} rallies ·
+        {{ r.values['threeContact'] ?? 0 }} pass-set-attack
+      </span>
+    </div>
+  }
+}

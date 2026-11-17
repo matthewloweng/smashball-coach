@@ -29,20 +29,30 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": [
+              "node_modules/@ionic/angular/css/core.css",
+              "node_modules/@ionic/angular/css/normalize.css",
+              "node_modules/@ionic/angular/css/structure.css",
+              "node_modules/@ionic/angular/css/typography.css",
+              "node_modules/@ionic/angular/css/padding.css",
+              "node_modules/@ionic/angular/css/flex-utils.css",
+              "node_modules/@ionic/angular/css/text-alignment.css",
+              "node_modules/@ionic/angular/css/palettes/dark.system.css",
+              "src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "1.2MB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "6kB",
+                  "maximumError": "12kB"
                 }
               ],
               "outputHashing": "all",

@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Smashball Coach</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/history" aria-label="History">
+        <ion-icon slot="icon-only" name="time-outline" />
+      </ion-button>
+      <app-settings />
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (sessions.session(); as running) {
+    <button class="resume card" routerLink="/session">
+      <span>
+        <strong>Practice {{ sessions.plan()?.number }} is running</strong>
+        <span class="muted">{{ sessions.plan()?.title }}</span>
+      </span>
+      <ion-icon name="chevron-forward" />
+    </button>
+  }
+
+  <p class="section-title">{{ pack.name }} · practice plans</p>
+
+  @for (plan of pack.sessions; track plan.id) {
+    <div class="card plan">
+      <div class="plan-head">
+        <span class="plan-number">{{ plan.number }}</span>
+        <div>
+          <h2>{{ plan.title }}</h2>
+          <p class="muted">{{ plan.goal }}</p>
+        </div>
+      </div>
+      <div class="plan-actions">
+        <ion-button fill="clear" size="small" [routerLink]="['/games', plan.gameId]">
+          {{ gameCode(plan) }} rules
+        </ion-button>
+        <ion-button (click)="start(plan)">
+          <ion-icon slot="start" name="play-circle" />
+          Start
+        </ion-button>
+      </div>
+    </div>
+  }
+
+  <p class="footnote muted">
+    No names are recorded and nothing is filmed. Everything is stored on this device.
+  </p>
+</ion-content>

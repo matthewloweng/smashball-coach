@@ -1,0 +1,124 @@
+@if (court(); as c) {
+  @if (game(); as g) {
+    <section class="card court">
+      <header>
+        <h2>{{ c.label }}</h2>
+        <ion-select
+          aria-label="Game on this court"
+          interface="action-sheet"
+          [value]="g.id"
+          (ionChange)="changeGame($event.detail.value)"
+        >
+          @for (option of games; track option.id) {
+            <ion-select-option [value]="option.id"
+              >{{ option.code }} {{ option.name }}</ion-select-option
+            >
+          }
+        </ion-select>
+      </header>
+
+      @switch (g.scoring.mode) {
+        @case ('rally') {
+          <div class="sides">
+            @for (side of sides; track side) {
+              <div class="side" [attr.data-side]="side">
+                <span class="side-label">{{ label(side) }}</span>
+                <span class="big-number">{{ score(side) }}</span>
+                @for (a of actions(); track a.id; let first = $first) {
+                  <button class="score-btn" [class.primary]="first" (click)="point(side, a)">
+                    {{ a.label }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+          <p class="muted small center">Game to {{ target() }}</p>
+        }
+
+        @case ('wash') {
+          <div class="sides">
+            @for (side of sides; track side) {
+              <div class="side" [attr.data-side]="side">
+                <span class="side-label">{{ label(side) }}</span>
+                <span class="big-number">{{ score(side) }}</span>
+                <button class="score-btn primary" (click)="wash(side)">Won both</button>
+              </div>
+            }
+          </div>
+          <button class="score-btn split" (click)="wash('split')">Split · wash, no point</button>
+          <p class="muted small center">Big point + little point · game to {{ target() }}</p>
+        }
+
+        @case ('monarch') {
+          @if (monarch(); as m) {
+            <div class="sides">
+              <div class="side" data-side="A">
+                <span class="side-label">Monarchs</span>
+                <span class="unit">{{ m.monarch }}</span>
+                <span class="muted small">Turned back {{ m.defences }}</span>
+                <button class="score-btn primary" (click)="rally('A')">Monarchs win</button>
+              </div>
+              <div class="side" data-side="B">
+                <span class="side-label">Challengers</span>
+                <span class="unit">{{ m.challenger }}</span>
+                <span class="dots" [attr.aria-label]="'Going for 3'">
+                  @for (d of m.dots; track $index) {
+                    <span class="dot" [class.on]="d"></span>
+                  }
+                </span>
+                <button class="score-btn primary" (click)="rally('B')">Challengers win</button>
+              </div>
+            </div>
+            <p class="muted small center">
+              Next up: {{ m.next || '–' }} · Times crowned:
+              @for (cr of m.crowns; track cr.unit; let last = $last) {
+                {{ cr.unit }} {{ cr.crowns }}{{ last ? '' : ',' }}
+              }
+            </p>
+          }
+        }
+      }
+
+      @if (winner(); as w) {
+        <div class="target">
+          <span>{{ label(w) }} reached {{ target() }}</span>
+          <ion-button size="small" (click)="endGame()">End game</ion-button>
+        </div>
+      }
+
+      @for (r of rules(); track r.key) {
+        <div class="alert-rule" [class.rotation]="r.rule.kind === 'rotation'" role="status">
+          <strong>{{ label(r.side) }} · {{ r.rule.when }}</strong>
+          {{ r.rule.effect }}
+        </div>
+      }
+      @if (!adaptationsOn()) {
+        <p class="muted small">Adaptation rules are off in this block.</p>
+      }
+
+      <footer>
+        <ion-button fill="clear" size="small" (click)="undo()">
+          <ion-icon slot="start" name="arrow-undo" />
+          Undo
+        </ion-button>
+        @if (g.scoring.mode !== 'monarch') {
+          <ion-button fill="clear" size="small" (click)="endGame()">
+            <ion-icon slot="start" name="flag" />
+            End game
+          </ion-button>
+        }
+      </footer>
+
+      @if (match(); as mt) {
+        @if (mt.finished.length) {
+          <p class="muted small">
+            Finished:
+            @for (f of mt.finished; track f.endedAt; let last = $last) {
+              {{ f.score.A }}-{{ f.score.B }}{{ last ? '' : ',' }}
+            }
+          </p>
+        }
+      }
+    </section>
+  }
+}

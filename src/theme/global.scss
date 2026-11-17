@@ -1,0 +1,54 @@
+// Courtside UI: large tap targets, high contrast, minimal reading.
+.big-number {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.card {
+  background: var(--ion-card-background, var(--ion-item-background, #fff));
+  border-radius: var(--card-radius);
+  padding: 14px;
+  margin: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.alert-rule {
+  background: var(--alert-bg);
+  border-left: 5px solid var(--alert-border);
+  color: var(--alert-text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  font-size: 0.95rem;
+
+  &.rotation {
+    background: var(--rotation-bg);
+    border-left-color: var(--rotation-border);
+    color: inherit;
+  }
+
+  strong {
+    display: block;
+  }
+}
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 18px 16px 4px;
+}
