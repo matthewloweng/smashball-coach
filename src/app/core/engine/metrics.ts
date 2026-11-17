@@ -4,7 +4,7 @@
  * modification-by-adaptation keeping competition balanced (Hopper, 2011).
  */
 import { Session } from '../models/session.models';
-import { GameTemplate } from '../models/template.models';
+import { GameTemplate, SessionBlock } from '../models/template.models';
 import { activeRules, newlyActive } from './adaptation';
 import { effectiveEvents } from './events';
 import { FinishedGame, applyEvent, initialMatch, replayCourt } from './match';
@@ -30,7 +30,8 @@ export function closeness(game: FinishedGame): GameCloseness {
 export interface CourtSummary {
   courtId: string;
   label: string;
-  games: (FinishedGame & GameCloseness)[];
+  /** Finished games, plus the game still in progress when the practice ended (marked unfinished). */
+  games: (FinishedGame & GameCloseness & { unfinished?: boolean })[];
   /** Number of times an adaptation rule switched on during the session. */
   adaptationsTriggered: number;
   /** Share of finished games decided by 2 points or fewer. */
@@ -41,6 +42,7 @@ export function summariseCourt(
   session: Session,
   courtId: string,
   gameFor: (id: string) => GameTemplate,
+  blocks: readonly SessionBlock[] = [],
 ): CourtSummary {
   const court = session.courts.find((c) => c.id === courtId);
   if (!court) throw new Error(`Unknown court ${courtId}`);
@@ -51,21 +53,41 @@ export function summariseCourt(
   let match = initialMatch(courtId, game);
   let active = activeRules(game, match);
   let triggered = 0;
+  let adaptationsOn = true;
   for (const e of effectiveEvents(session.events)) {
+    if (e.type === 'block.started') {
+      adaptationsOn = blocks[e.blockIndex]?.adaptationsOn ?? true;
+      // Rules already met switch on when a block turns adaptations on.
+      const now = activeRules(game, match, adaptationsOn);
+      triggered += newlyActive(active, now).filter((r) => r.rule.kind === 'adaptation').length;
+      active = now;
+      continue;
+    }
     if (e.type === 'court.game' && e.courtId === courtId) {
       game = gameFor(e.gameId);
       match = initialMatch(courtId, game);
-      active = activeRules(game, match);
+      active = activeRules(game, match, adaptationsOn);
       continue;
     }
     if (!('courtId' in e) || e.courtId !== courtId) continue;
     match = applyEvent(match, e, game);
-    const now = activeRules(game, match);
+    const now = activeRules(game, match, adaptationsOn);
     triggered += newlyActive(active, now).filter((r) => r.rule.kind === 'adaptation').length;
     active = now;
   }
 
-  const games = state.finished.map((g) => ({ ...g, ...closeness(g) }));
+  const games: CourtSummary['games'] = state.finished.map((g) => ({ ...g, ...closeness(g) }));
+  if (state.margins.length && !state.monarch) {
+    const last: FinishedGame = {
+      gameId: state.gameId,
+      score: state.score,
+      winner: state.score.A === state.score.B ? null : state.score.A > state.score.B ? 'A' : 'B',
+      margins: state.margins,
+      startedAt: state.gameStartedAt ?? session.startedAt,
+      endedAt: session.endedAt ?? Date.now(),
+    };
+    games.push({ ...last, ...closeness(last), unfinished: true });
+  }
   const close = games.filter((g) => g.finalMargin <= 2).length;
   return {
     courtId,

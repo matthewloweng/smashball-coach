@@ -37,7 +37,9 @@ export class HistoryService {
     return {
       session,
       plan,
-      courts: session.courts.map((c) => summariseCourt(session, c.id, this.templates.gameFor)),
+      courts: session.courts.map((c) =>
+        summariseCourt(session, c.id, this.templates.gameFor, plan?.blocks ?? []),
+      ),
       counts: tallyRuns(session.events, sheets).map((run) => {
         const sheet = sheets.find((s) => s.id === run.sheetId);
         return { run, derived: sheet ? derivedValues(run, sheet) : [] };

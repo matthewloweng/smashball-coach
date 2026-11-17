@@ -30,7 +30,7 @@
         <div class="stats">
           <div>
             <strong>{{ c.games.length }}</strong>
-            <span class="muted">games finished</span>
+            <span class="muted">games played</span>
           </div>
           <div>
             <strong>{{ c.adaptationsTriggered }}</strong>
@@ -55,7 +55,12 @@
             <tbody>
               @for (g of c.games; track g.endedAt) {
                 <tr>
-                  <td>{{ gameName(g.gameId) }}</td>
+                  <td>
+                    {{ gameName(g.gameId) }}
+                    @if (g.unfinished) {
+                      <span class="muted"> (unfinished)</span>
+                    }
+                  </td>
                   <td class="num">{{ g.score.A }}-{{ g.score.B }}</td>
                   <td>{{ winnerLabel(g.gameId, g.winner) }}</td>
                   <td class="num">{{ g.meanMargin }}</td>
@@ -66,8 +71,7 @@
           </table>
         } @else {
           <p class="muted">
-            No finished games on this court. (Monarch games are tracked live, not as finished
-            games.)
+            No games scored on this court. (Monarch games are tracked live, not as finished games.)
           </p>
         }
       </div>

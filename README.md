@@ -1,59 +1,91 @@
-# SmashballCoach
+# Smashball Coach
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.7.
+A courtside coaching app for small-sided volleyball games, built for an EPHE 437 (Net Games, UVic) extension project on Volleyball Canada's Smashball program.
 
-## Development server
+It runs a play-practice-play session from your phone:
 
-To start a local development server, run:
+- **Plan**: timed blocks (play, huddle, practice) with a countdown, vibration and a spoken cue when time is up. Huddle questions and task-card cues are on screen when you need them.
+- **Score**: one scoreboard per court for rally games, Monarch (king of the court) and big point/little point washes. Adaptation rules (modification-by-adaptation, Hopper 2011) are flagged live, such as "Pair A · Lead by 3: your short zone no longer scores 2".
+- **Count**: a 3-minute contact count with big tap buttons. It works out contacts per player, rallies with pass-set-attack, and the share of attacks dug.
+- **Levels**: Volleyball Canada's level-up rule (2 out of the last 3 serve-receives end in an attack) for each pair or trio.
+- **History**: every practice, with how close the games stayed, how often rules switched on, and count charts across practices. Exports to CSV or JSON.
 
-```bash
-ng serve
+No names are stored and nothing is filmed. Everything stays on the device.
+
+## Tech stack
+
+| Layer | Choice | Why |
+| --- | --- | --- |
+| UI | Angular 22 (standalone components, signals) + Ionic 9 | Native-feeling mobile UI from one TypeScript codebase |
+| Native | Capacitor 8 | The same build becomes the iOS and Android apps |
+| Web | Angular service worker (PWA) | Installable from a link, works offline in the gym |
+| Storage | Capacitor Preferences, behind `KeyValueStore` | Native storage on phones, localStorage on the web |
+| Tests | Vitest via `ng test` | Fast unit tests for the engine and store |
+
+## Architecture
+
+```
+src/app/
+  core/
+    models/       Plain-data types: template packs (games, rules, plans) and session events
+    engine/       Pure functions: scoring reducers, adaptation engine, level-ups, tallies, metrics
+    services/     Angular services: session store (signals), templates, cues, clock, settings
+    storage/      KeyValueStore interface + Preferences/in-memory implementations, repositories
+  content/
+    volleyball/   The volleyball template pack (6 games, 6 practice plans, 7 task cards)
+  features/       Screens: home, session (plan/score/count/levels tabs), history, game rules
+  shared/         Reusable components: court diagram, bar chart, settings
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Three ideas keep it easy to extend:
 
-## Code scaffolding
+1. **Templates are data.** Games, scoring, adaptation triggers, task cards, tally sheets and practice plans are plain JSON-shaped objects (`TemplatePack`). Nothing in the engine is volleyball-specific. A badminton or pickleball pack is just another data file, and the Phase 2 template editor only has to edit this data.
+2. **Sessions are event logs.** Every tap is an event appended to the session (`point`, `wash`, `monarch.rally`, `tally`, `block.started`, ...). Screens are worked out from the events by pure reducers in `core/engine`. Undo means appending an `undo` event. Syncing several phones later (Phase 3) means exchanging events.
+3. **Storage is behind one interface.** Features use repositories, which use `KeyValueStore`. A cloud-backed store can replace `PreferencesStore` without touching the screens.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Adding things
 
-```bash
-ng generate component component-name
-```
+- **A new adaptation trigger**: add a variant to `Trigger` in `template.models.ts`, handle it in `triggerMet` (`engine/adaptation.ts`), and add a test.
+- **A new scoring mode**: add a variant to `ScoringConfig`, handle its event in `applyEvent` (`engine/match.ts`), and add a `@case` to `court-card.component.html`.
+- **A new game or practice plan**: add it to a template pack. No code changes needed.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## Run it
 
 ```bash
-ng build
+npm install
+npm start            # dev server at http://localhost:4200
+npm run test:ci      # unit tests
+npm run build:web    # production build in dist/smashball-coach/browser
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## iPhone and Android (Capacitor)
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+On a Mac with Xcode:
 
 ```bash
-ng test
+npx cap add ios      # once: creates the ios/ project
+npm run ios          # build, sync and open in Xcode
 ```
 
-## Running end-to-end tests
+In Xcode, choose your iPhone and press Run. A free Apple ID can install it on your own phone for testing (the install needs refreshing about every 7 days). Publishing to the App Store needs the Apple Developer Program. Before publishing, change `appId` in `capacitor.config.ts` to your own reverse-domain id.
 
-For end-to-end (e2e) testing, run:
+Android works the same way with `npx cap add android` and `npm run android` (Android Studio).
 
-```bash
-ng e2e
-```
+## Free web hosting
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+`.github/workflows/deploy-pages.yml` publishes the web app to GitHub Pages on every push to `main`. One-time setup: repository **Settings → Pages → Source: GitHub Actions**. Routes use hash URLs (`#/session`), so they work on any static host.
 
-## Additional Resources
+## Roadmap
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **Phase 1 (now)**: volleyball pack, single phone, offline.
+- **Phase 2**: in-app template editor, plus import and export of template packs as files, for any net sport.
+- **Phase 3**: accounts, cloud template sharing, class mode (a teacher's device plus group phones scoring their own courts, synced live), App Store and Google Play releases.
+
+## Sources behind the design
+
+- Hopper, T. (2011). Game-as-teacher: Modification by adaptation in learning through game-play. *Asia-Pacific Journal of Health, Sport and Physical Education, 2*(2), 3-21.
+- Hopper, T., & Gopalan Srinivasa, S. (in press). Physical education teachers as game designers: Using the REAR framework. *JOPERD*.
+- Hopper, T., & Rhoades, J. (2023). Biomechanical insights on Tennis Canada's skill fundamental phases. *ITF Coaching & Sport Science Review, 32*(91), 18-25.
+- Volleyball Canada. (2023). *How to run a Smashball program.*
+
+Created by Matthew Lowe-Ng.

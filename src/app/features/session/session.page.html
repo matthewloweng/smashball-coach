@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/" text="" />
     </ion-buttons>
-    <ion-title>P{{ store.plan()?.number }} · {{ store.plan()?.title }}</ion-title>
+    <ion-title>Practice {{ store.plan()?.number }}</ion-title>
     <ion-buttons slot="end">
       <app-settings />
       <ion-button (click)="finish()">Finish</ion-button>

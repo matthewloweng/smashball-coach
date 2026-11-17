@@ -14,7 +14,9 @@ import { BLOCK_LABELS } from './session-format';
       @if (store.block(); as b) {
         <div class="card now" [attr.data-kind]="b.kind">
           <p class="section-title flush">Now · {{ labels[b.kind] }}</p>
-          <p class="lead">{{ b.text }}</p>
+          @if (!(b.kind === 'huddle' && b.question)) {
+            <p class="lead">{{ b.text }}</p>
+          }
 
           @if (b.kind === 'huddle' && b.question) {
             <p class="question">“{{ b.question }}”</p>

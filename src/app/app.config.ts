@@ -5,7 +5,12 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { RouteReuseStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
+import {
+  RouteReuseStrategy,
+  provideRouter,
+  withComponentInputBinding,
+  withHashLocation,
+} from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular';
 import { routes } from './app.routes';
@@ -18,7 +23,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideIonicAngular(),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideRouter(routes, withComponentInputBinding()),
+    // Hash URLs (#/session) work on any static host and inside the native app shell.
+    provideRouter(routes, withComponentInputBinding(), withHashLocation()),
     { provide: KEY_VALUE_STORE, useFactory: () => new PreferencesStore() },
     provideAppInitializer(async () => {
       const settings = inject(SettingsService);

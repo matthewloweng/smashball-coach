@@ -1,12 +1,19 @@
 {
   "name": "smashball-coach",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:ci": "ng test --watch=false",
+    "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss}\"",
+    "build:web": "ng build",
+    "cap:sync": "ng build && cap sync",
+    "ios": "ng build && cap sync ios && cap open ios",
+    "android": "ng build && cap sync android && cap open android"
   },
   "private": true,
   "packageManager": "npm@10.9.9",
@@ -36,5 +43,6 @@
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
     "vitest": "^5.0.0"
-  }
+  },
+  "description": "Courtside coaching app for small-sided volleyball games (EPHE 437 extension project)."
 }

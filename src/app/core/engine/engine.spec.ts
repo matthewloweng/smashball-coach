@@ -241,3 +241,37 @@ describe('metrics', () => {
     ).toBe(0);
   });
 });
+
+describe('metrics with plan blocks', () => {
+  it('ignores rules while adaptations are off and counts the unfinished game', () => {
+    const plan = VOLLEYBALL_PACK.sessions.find((s) => s.id === 'p2')!;
+    const events = [
+      ev({ type: 'block.started', blockIndex: 0 }), // adaptations off
+      point('A'),
+      point('A'),
+      point('A'),
+      ev({ type: 'block.started', blockIndex: 3 }), // adaptations on
+      point('A'),
+    ];
+    const summary = summariseCourt(
+      {
+        id: 's',
+        packId: 'x',
+        planId: 'p2',
+        startedAt: 0,
+        endedAt: 5000,
+        courts: [{ id: 'c1', label: 'Court 1', gameId: 'g2' }],
+        events,
+        notes: '',
+      },
+      'c1',
+      gameFor,
+      plan.blocks,
+    );
+    // Lead/trail by 3 switch on when the play-with-adaptations block starts, not before.
+    expect(summary.adaptationsTriggered).toBe(2);
+    expect(summary.games).toHaveLength(1);
+    expect(summary.games[0]?.unfinished).toBe(true);
+    expect(summary.games[0]?.score).toEqual({ A: 4, B: 0 });
+  });
+});
