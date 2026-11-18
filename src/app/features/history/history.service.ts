@@ -3,7 +3,9 @@ import { CourtSummary, summariseCourt } from '../../core/engine/metrics';
 import { DerivedValue, TallyRun, derivedValues, tallyRuns } from '../../core/engine/tally';
 import { Session } from '../../core/models/session.models';
 import { SessionPlan } from '../../core/models/template.models';
+import { SettingsService } from '../../core/services/settings.service';
 import { TemplateService } from '../../core/services/template.service';
+import { SampleRepository } from '../../core/storage/sample.repository';
 import { SessionRepository } from '../../core/storage/session.repository';
 
 export interface SessionSummary {
@@ -24,11 +26,21 @@ export interface CountPoint {
 export class HistoryService {
   private readonly repo = inject(SessionRepository);
   private readonly templates = inject(TemplateService);
+  private readonly samples = inject(SampleRepository);
+  private readonly settings = inject(SettingsService);
 
+  /** Your practices plus, if switched on, the sample practices. Newest first. */
   async all(): Promise<Session[]> {
     const index = await this.repo.list();
-    const sessions = await Promise.all(index.map((e) => this.repo.get(e.id)));
-    return sessions.filter((s): s is Session => s !== null);
+    const own = (await Promise.all(index.map((e) => this.repo.get(e.id)))).filter(
+      (s): s is Session => s !== null,
+    );
+    const samples = this.settings.settings().showSamples ? await this.samples.list() : [];
+    return [...own, ...samples].sort((a, b) => b.startedAt - a.startedAt);
+  }
+
+  async get(id: string): Promise<Session | null> {
+    return (await this.repo.get(id)) ?? (await this.samples.get(id));
   }
 
   summarise(session: Session): SessionSummary {
@@ -54,7 +66,7 @@ export class HistoryService {
       const plan = this.planOrNull(s.planId);
       for (const c of this.summarise(s).counts) {
         points.push({
-          label: `P${plan?.number ?? '?'} · ${c.run.context}`,
+          label: `P${plan?.number ?? '?'} · ${c.run.context}${s.sample ? ' *' : ''}`,
           startedAt: c.run.startedAt,
           values: Object.fromEntries(c.derived.map((d) => [d.key, d.value])),
         });

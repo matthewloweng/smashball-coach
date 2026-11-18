@@ -67,7 +67,7 @@ export class SessionStore {
   readonly matches = computed(() => {
     const map = new Map<string, MatchState>();
     for (const c of this.courts()) {
-      map.set(c.id, replayCourt(c.id, c.gameId, this.events(), this.templates.gameFor));
+      map.set(c.id, replayCourt(c.id, c.gameId, this.events(), this.templates.gameFor, c.units));
     }
     return map;
   });

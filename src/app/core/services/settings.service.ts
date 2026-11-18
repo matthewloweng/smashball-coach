@@ -6,9 +6,11 @@ export interface Settings {
   speak: boolean;
   /** Keep the screen awake during a session (where supported). */
   keepAwake: boolean;
+  /** Show the simulated sample practices in History. */
+  showSamples: boolean;
 }
 
-const DEFAULTS: Settings = { vibrate: true, speak: true, keepAwake: true };
+const DEFAULTS: Settings = { vibrate: true, speak: true, keepAwake: true, showSamples: true };
 const KEY = 'settings';
 
 @Injectable({ providedIn: 'root' })

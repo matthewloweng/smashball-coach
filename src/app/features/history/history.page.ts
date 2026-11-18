@@ -51,6 +51,22 @@ import { HistoryService } from './history.service';
     .row span span {
       display: block;
     }
+    .row .tag {
+      margin-right: 6px;
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      vertical-align: middle;
+      background: var(--alert-bg);
+      color: var(--alert-text);
+      border: 1px solid var(--alert-border);
+    }
+    .small {
+      font-size: 0.82rem;
+      margin: 0 0 10px;
+    }
     .empty {
       text-align: center;
       padding: 32px 24px;
@@ -72,6 +88,7 @@ export class HistoryPage implements ViewWillEnter {
   protected readonly metrics = this.templates.pack.tallySheets[0]?.derived ?? [];
 
   protected readonly series = computed(() => this.history.countSeries(this.sessions()));
+  protected readonly hasSamples = computed(() => this.sessions().some((s) => s.sample));
 
   constructor() {
     addIcons({ chevronForward, download, copyOutline });

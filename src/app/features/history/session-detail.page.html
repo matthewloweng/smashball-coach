@@ -13,6 +13,12 @@
   }
 
   @if (summary(); as s) {
+    @if (s.session.sample) {
+      <p class="card sample-note">
+        <strong>Sample practice.</strong> Simulated rally by rally from anonymous player ratings, to
+        show what the app records. Hide samples in settings.
+      </p>
+    }
     <div class="card">
       <h2>{{ s.plan?.title }}</h2>
       <p class="muted">
@@ -28,19 +34,31 @@
       <div class="card">
         <h2>{{ c.label }}</h2>
         <div class="stats">
-          <div>
-            <strong>{{ c.games.length }}</strong>
-            <span class="muted">games played</span>
-          </div>
+          @if (!c.monarch) {
+            <div>
+              <strong>{{ c.games.length }}</strong>
+              <span class="muted">games played</span>
+            </div>
+          }
           <div>
             <strong>{{ c.adaptationsTriggered }}</strong>
             <span class="muted">adaptation rules switched on</span>
           </div>
-          <div>
-            <strong>{{ c.closeGameShare === null ? '–' : (c.closeGameShare | percent) }}</strong>
-            <span class="muted">games won by 2 or less</span>
-          </div>
+          @if (!c.monarch) {
+            <div>
+              <strong>{{ c.closeGameShare === null ? '–' : (c.closeGameShare | percent) }}</strong>
+              <span class="muted">games won by 2 or less</span>
+            </div>
+          }
         </div>
+        @if (c.monarch; as m) {
+          <p>
+            {{ m.rallies }} challenges played. Times each pair took the court:
+            @for (cr of m.crowns; track $index; let last = $last) {
+              Pair {{ $index + 1 }}: {{ cr }}{{ last ? '' : ',' }}
+            }
+          </p>
+        }
         @if (c.games.length) {
           <table>
             <thead>
@@ -69,10 +87,8 @@
               }
             </tbody>
           </table>
-        } @else {
-          <p class="muted">
-            No games scored on this court. (Monarch games are tracked live, not as finished games.)
-          </p>
+        } @else if (!c.monarch) {
+          <p class="muted">No games scored on this court.</p>
         }
       </div>
     }

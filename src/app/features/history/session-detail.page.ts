@@ -14,7 +14,6 @@ import {
 } from '@ionic/angular';
 import { sideLabel } from '../../core/engine/labels';
 import { TemplateService } from '../../core/services/template.service';
-import { SessionRepository } from '../../core/storage/session.repository';
 import { HistoryService, SessionSummary } from './history.service';
 
 @Component({
@@ -32,6 +31,11 @@ import { HistoryService, SessionSummary } from './history.service';
   ],
   templateUrl: './session-detail.page.html',
   styles: `
+    .sample-note {
+      border-left: 5px solid var(--alert-border);
+      background: var(--alert-bg);
+      color: var(--alert-text);
+    }
     h2 {
       margin: 0 0 6px;
       font-size: 1.1rem;
@@ -87,7 +91,6 @@ import { HistoryService, SessionSummary } from './history.service';
 })
 export class SessionDetailPage implements ViewWillEnter {
   readonly id = input.required<string>();
-  private readonly repo = inject(SessionRepository);
   private readonly history = inject(HistoryService);
   private readonly templates = inject(TemplateService);
   private readonly alerts = inject(AlertController);
@@ -102,7 +105,7 @@ export class SessionDetailPage implements ViewWillEnter {
   });
 
   async ionViewWillEnter(): Promise<void> {
-    const s = await this.repo.get(this.id());
+    const s = await this.history.get(this.id());
     if (!s) {
       this.missing.set(true);
       return;

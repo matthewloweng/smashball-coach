@@ -17,6 +17,9 @@
   @if (series().length) {
     <p class="section-title">Contact counts across practices</p>
     <div class="card">
+      @if (hasSamples()) {
+        <p class="muted small">* Sample practice (simulated). Hide samples in settings.</p>
+      }
       @for (m of metrics; track m.key) {
         <app-bar-chart [title]="m.label" [data]="chart(m.key)" [format]="m.format" />
       }
@@ -30,6 +33,9 @@
         <span>
           <strong>{{ planTitle(s) }}</strong>
           <span class="muted">
+            @if (s.sample) {
+              <b class="tag">Sample</b>
+            }
             {{ s.startedAt | date: 'EEE d MMM, h:mm a' }}
             @if (!s.endedAt) {
               · running

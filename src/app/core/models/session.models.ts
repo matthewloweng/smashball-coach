@@ -22,12 +22,16 @@ export interface Session {
   events: SessionEvent[];
   /** Free notes for the coach's session log. Never names. */
   notes: string;
+  /** True for simulated sample practices shipped with the app (shown with a "Sample" tag). */
+  sample?: boolean;
 }
 
 export interface CourtSetup {
   id: string;
   label: string;
   gameId: string;
+  /** Monarch games: how many pairs share this court (defaults to the game's setting). */
+  units?: number;
 }
 
 /** Every event carries a timestamp (ms since epoch) and a unique id. */

@@ -47,6 +47,14 @@ let nextId = 0;
                 Keep screen on
               </ion-toggle>
             </ion-item>
+            <ion-item>
+              <ion-toggle
+                [checked]="s().showSamples"
+                (ionChange)="set('showSamples', $event.detail.checked)"
+              >
+                Show sample practices
+              </ion-toggle>
+            </ion-item>
           </ion-list>
         </ion-content>
       </ng-template>

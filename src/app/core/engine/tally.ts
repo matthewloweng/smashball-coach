@@ -62,9 +62,9 @@ function startRun(e: TallyRunEvent): TallyRun {
 
 export function derivedValues(run: TallyRun, sheet: TallySheetTemplate): DerivedValue[] {
   return sheet.derived.map((d) => {
-    const num = run.values[d.numerator];
+    const num = run.values[d.numerator] ?? 0;
     const den = run.values[d.denominator];
-    const value = num !== undefined && den ? num / den : null;
+    const value = den ? num / den : null;
     let display = '–';
     if (value !== null) {
       display = d.format === 'percent' ? `${Math.round(value * 100)}%` : value.toFixed(1);

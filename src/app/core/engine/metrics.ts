@@ -36,6 +36,8 @@ export interface CourtSummary {
   adaptationsTriggered: number;
   /** Share of finished games decided by 2 points or fewer. */
   closeGameShare: number | null;
+  /** Monarch games: times each pair took the court, plus the number of challenges played. */
+  monarch?: { crowns: number[]; rallies: number };
 }
 
 export function summariseCourt(
@@ -46,11 +48,11 @@ export function summariseCourt(
 ): CourtSummary {
   const court = session.courts.find((c) => c.id === courtId);
   if (!court) throw new Error(`Unknown court ${courtId}`);
-  const state = replayCourt(courtId, court.gameId, session.events, gameFor);
+  const state = replayCourt(courtId, court.gameId, session.events, gameFor, court.units);
 
   // Count rules switching on by replaying event by event.
   let game = gameFor(court.gameId);
-  let match = initialMatch(courtId, game);
+  let match = initialMatch(courtId, game, court.units);
   let active = activeRules(game, match);
   let triggered = 0;
   let adaptationsOn = true;
@@ -65,7 +67,7 @@ export function summariseCourt(
     }
     if (e.type === 'court.game' && e.courtId === courtId) {
       game = gameFor(e.gameId);
-      match = initialMatch(courtId, game);
+      match = initialMatch(courtId, game, court.units);
       active = activeRules(game, match, adaptationsOn);
       continue;
     }
@@ -89,9 +91,18 @@ export function summariseCourt(
     games.push({ ...last, ...closeness(last), unfinished: true });
   }
   const close = games.filter((g) => g.finalMargin <= 2).length;
+  const monarch = state.monarch
+    ? {
+        crowns: state.monarch.crowns,
+        rallies: effectiveEvents(session.events).filter(
+          (e) => e.type === 'monarch.rally' && e.courtId === courtId,
+        ).length,
+      }
+    : undefined;
   return {
     courtId,
     label: court.label,
+    monarch,
     games,
     adaptationsTriggered: triggered,
     closeGameShare: games.length ? close / games.length : null,

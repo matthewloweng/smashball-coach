@@ -65,7 +65,7 @@ export function emptyStreaks(): Streaks {
   return { A: {}, B: {} };
 }
 
-export function initialMatch(courtId: string, game: GameTemplate): MatchState {
+export function initialMatch(courtId: string, game: GameTemplate, units?: number): MatchState {
   return {
     courtId,
     gameId: game.id,
@@ -74,7 +74,10 @@ export function initialMatch(courtId: string, game: GameTemplate): MatchState {
     actionCounts: {},
     lastPoint: null,
     streaks: emptyStreaks(),
-    monarch: game.scoring.mode === 'monarch' ? initialMonarch(game.scoring.challengerUnits) : null,
+    monarch:
+      game.scoring.mode === 'monarch'
+        ? initialMonarch(units ?? game.scoring.challengerUnits)
+        : null,
     finished: [],
     gameStartedAt: null,
   };
@@ -267,14 +270,15 @@ export function replayCourt(
   startGameId: string,
   events: readonly SessionEvent[],
   gameFor: (id: string) => GameTemplate,
+  units?: number,
 ): MatchState {
   let game = gameFor(startGameId);
-  let state = initialMatch(courtId, game);
+  let state = initialMatch(courtId, game, units);
   for (const e of effectiveEvents(events)) {
     if (e.type === 'court.game' && e.courtId === courtId) {
       const ended = endGame(state, e.at);
       game = gameFor(e.gameId);
-      state = { ...initialMatch(courtId, game), finished: ended.finished };
+      state = { ...initialMatch(courtId, game, units), finished: ended.finished };
       continue;
     }
     state = applyEvent(state, e, game);
