@@ -138,6 +138,12 @@ export interface RallyScoring {
 export interface MonarchScoring {
   mode: 'monarch';
   winStreak: number;
+  /**
+   * Optional easing: once the Monarchs have turned back this many challengers
+   * in a row, challengers only need `easedStreak` rallies in a row.
+   */
+  easeAfterDefences?: number;
+  easedStreak?: number;
   /** How many challenger units queue up (anonymous: "Pair 1", "Pair 2", ...). */
   challengerUnits: number;
   unitLabel: string;

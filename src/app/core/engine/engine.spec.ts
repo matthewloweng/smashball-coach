@@ -106,13 +106,34 @@ describe('Monarch scoring (G1)', () => {
     // Monarchs (pair 0) turn back pair 1, then pair 2: two defences.
     let s = replayCourt('c1', 'g1', [rally('A'), rally('A')], gameFor);
     expect(s.monarch?.defences).toBe(2);
-    expect(activeRules(g, s).map((r) => r.key)).toContain('g1-a2:A');
+    expect(activeRules(g, s).map((r) => r.key)).toContain('g1-a1:A');
     // Pair 1 is back and fails again: two failed attempts in a row.
     s = replayCourt('c1', 'g1', [rally('A'), rally('A'), rally('A')], gameFor);
     expect(s.monarch?.challenger).toBe(2);
     s = replayCourt('c1', 'g1', [rally('A'), rally('A'), rally('A'), rally('A')], gameFor);
     expect(s.monarch?.challenger).toBe(1);
-    expect(activeRules(g, s).map((r) => r.key)).toContain('g1-a3:B');
+    expect(activeRules(g, s).map((r) => r.key)).toContain('g1-a2:B');
+  });
+});
+
+describe('Monarch easing rule (G1)', () => {
+  const rally = (winner: 'A' | 'B') => ev({ type: 'monarch.rally', courtId: 'c1', winner });
+
+  it('lets challengers take the court with 2 in a row after 4 defences', () => {
+    const g = gameFor('g1');
+    const four = [rally('A'), rally('A'), rally('A'), rally('A')];
+    let s = replayCourt('c1', 'g1', four, gameFor);
+    expect(s.monarch?.defences).toBe(4);
+    expect(activeRules(g, s).map((r) => r.key)).toContain('g1-a3:A');
+    s = replayCourt('c1', 'g1', [...four, rally('B'), rally('B')], gameFor);
+    expect(s.monarch?.crowns.some((c) => c === 1)).toBe(true);
+    expect(s.monarch?.defences).toBe(0);
+  });
+
+  it('still needs 3 in a row before the easing rule switches on', () => {
+    const s = replayCourt('c1', 'g1', [rally('B'), rally('B')], gameFor);
+    expect(s.monarch?.monarch).toBe(0);
+    expect(s.monarch?.progress).toBe(2);
   });
 });
 

@@ -8,7 +8,7 @@ import { SessionStore } from '../../core/services/session.store';
 import { TemplateService } from '../../core/services/template.service';
 
 const ADVICE: Record<LevelAdvice, string> = {
-  up: 'Level up: remove an aid or add a harder constraint',
+  up: 'Ready for the next format, or remove an aid',
   down: 'Struggling: give an aid back',
   stay: 'Stay at this level',
   collecting: 'Keep going',
@@ -27,7 +27,7 @@ export class LevelsTabComponent {
   private readonly cues = inject(CueService);
 
   protected readonly advice = ADVICE;
-  protected readonly rule = `${NEEDED} of the last ${WINDOW} serve-receives end in a third-contact attack`;
+  protected readonly rule = `${NEEDED} of the last ${WINDOW} serve-receives end in a third-contact attack that lands in or forces a free ball back`;
   protected readonly courts = this.store.courts;
   protected readonly courtId = signal<string | null>(null);
   protected readonly unitCount = signal(4);

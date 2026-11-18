@@ -1,6 +1,9 @@
 <div class="card">
   <p class="section-title flush">Level-up rule</p>
-  <p class="small">Move up when {{ rule }}. Tap after each serve-receive.</p>
+  <p class="small">
+    Move up when {{ rule }}. Tap after each serve-receive. Use it to decide when a court moves to
+    the next game; the scoreboard's adaptation rules handle balance inside a game.
+  </p>
 
   @if (courts().length > 1) {
     <div class="courts" role="radiogroup" aria-label="Court">

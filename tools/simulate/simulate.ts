@@ -35,21 +35,23 @@ import {
 import { Mods, Ratings, Rng, Start, TeamInPlay, mulberry32, noMods, playRally } from './rally';
 
 /* ------------------------------------------------------------------ */
-/* Squad: 11 anonymous rating sets (0-1). Serving is weak across the board. */
+/* Squad: 11 invented rating sets (0-1). They are not based on any real    */
+/* players: just a plausible spread for a developing high school team, with */
+/* weak serving across the board.                                           */
 /* ------------------------------------------------------------------ */
 
 const SQUAD: Ratings[] = [
-  { serve: 0.4, pass: 0.55, set: 0.45, attack: 0.78, block: 0.72, dig: 0.5 },
-  { serve: 0.3, pass: 0.28, set: 0.25, attack: 0.68, block: 0.52, dig: 0.28 },
-  { serve: 0.32, pass: 0.52, set: 0.35, attack: 0.36, block: 0.3, dig: 0.48 },
-  { serve: 0.38, pass: 0.5, set: 0.68, attack: 0.4, block: 0.38, dig: 0.48 },
-  { serve: 0.3, pass: 0.42, set: 0.45, attack: 0.3, block: 0.28, dig: 0.42 },
-  { serve: 0.4, pass: 0.55, set: 0.35, attack: 0.78, block: 0.52, dig: 0.5 },
-  { serve: 0.42, pass: 0.78, set: 0.45, attack: 0.5, block: 0.2, dig: 0.78 },
-  { serve: 0.22, pass: 0.28, set: 0.25, attack: 0.25, block: 0.2, dig: 0.3 },
-  { serve: 0.4, pass: 0.6, set: 0.4, attack: 0.74, block: 0.5, dig: 0.55 },
-  { serve: 0.32, pass: 0.38, set: 0.3, attack: 0.6, block: 0.35, dig: 0.38 },
-  { serve: 0.32, pass: 0.36, set: 0.3, attack: 0.58, block: 0.34, dig: 0.36 },
+  { serve: 0.45, pass: 0.6, set: 0.4, attack: 0.7, block: 0.6, dig: 0.55 },
+  { serve: 0.35, pass: 0.45, set: 0.35, attack: 0.6, block: 0.5, dig: 0.4 },
+  { serve: 0.3, pass: 0.4, set: 0.6, attack: 0.35, block: 0.35, dig: 0.45 },
+  { serve: 0.4, pass: 0.55, set: 0.3, attack: 0.55, block: 0.45, dig: 0.5 },
+  { serve: 0.35, pass: 0.7, set: 0.4, attack: 0.45, block: 0.25, dig: 0.7 },
+  { serve: 0.3, pass: 0.35, set: 0.3, attack: 0.5, block: 0.55, dig: 0.35 },
+  { serve: 0.4, pass: 0.5, set: 0.5, attack: 0.4, block: 0.3, dig: 0.5 },
+  { serve: 0.25, pass: 0.3, set: 0.3, attack: 0.3, block: 0.25, dig: 0.3 },
+  { serve: 0.45, pass: 0.45, set: 0.35, attack: 0.65, block: 0.45, dig: 0.45 },
+  { serve: 0.3, pass: 0.4, set: 0.45, attack: 0.4, block: 0.3, dig: 0.45 },
+  { serve: 0.35, pass: 0.5, set: 0.3, attack: 0.5, block: 0.4, dig: 0.4 },
 ];
 
 /** Modest improvement across the six practices: mostly serving and passing. */
@@ -141,10 +143,10 @@ function modsFor(
   for (const r of activeRules(game, state, adaptationsOn)) {
     if (r.side !== side) continue;
     switch (r.rule.id) {
-      case 'g1-a2':
+      case 'g1-a1':
         m.digPenalty += 0.12;
         break; // Monarchs defend full 9 m
-      case 'g1-a3':
+      case 'g1-a2':
         m.catchSet = true;
         break; // challengers catch-and-set
       case 'g2-a2':
@@ -522,6 +524,7 @@ function tallyRun(
     tap('rallies', 1);
     tap('contacts', rally.contacts[0]);
     if (rally.threeContact[0]) tap('threeContact', 1);
+    tap('attacks', rally.attacks[0]);
     tap('attacksFaced', rally.attacksFaced[0]);
     tap('attacksDug', rally.attacksDug[0]);
     longest = Math.max(longest, rally.crossings);
@@ -573,10 +576,13 @@ function simulatePractice(entry: (typeof SCHEDULE)[number], index: number): Sess
     b.t = blockStart;
     b.push({ type: 'block.started', blockIndex: bi });
 
-    if (block.kind === 'baseline')
-      tallyRun(b, rng, blockStart + 60_000, '6v6 baseline', players, 6);
-    if (block.kind === 'transfer')
-      tallyRun(b, rng, blockStart + 60_000, '6v6 end of unit', players, 6);
+    if (block.kind === 'baseline' || (block.kind === 'transfer' && plan.number >= 6)) {
+      const label = block.kind === 'baseline' ? '6v6 baseline' : '6v6 end of unit';
+      tallyRun(b, rng, blockStart + 30_000, label, players, 6);
+      tallyRun(b, rng, blockStart + 220_000, label, players, 6);
+    } else if (block.kind === 'transfer') {
+      tallyRun(b, rng, blockStart + 30_000, '6v6 midpoint', players, 6);
+    }
     if (block.kind === 'play') {
       const on = block.adaptationsOn ?? true;
       for (const run of runs) {

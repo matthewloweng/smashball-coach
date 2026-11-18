@@ -56,6 +56,8 @@ export interface RallyResult {
   threeContact: [boolean, boolean];
   attacksFaced: [number, number];
   attacksDug: [number, number];
+  /** Third-contact attack attempts made by each team. */
+  attacks: [number, number];
   /** The receiving team turned the first ball (serve or free ball) into a third-contact attack. */
   firstBallAttack: boolean;
   seconds: number;
@@ -106,6 +108,7 @@ export function playRally(
     threeContact: [false, false],
     attacksFaced: [0, 0],
     attacksDug: [0, 0],
+    attacks: [0, 0],
     firstBallAttack: false,
     seconds: 0,
   };
@@ -188,6 +191,7 @@ export function playRally(
     const hitter = hitters.length ? pick(rng, hitters) : setter;
     r.contacts[receiving]++;
     r.threeContact[receiving] = true;
+    r.attacks[receiving]++;
     if (firstBall) r.firstBallAttack = true;
     let power = hitter.attack - m.attackPenalty + 0.35 * q2 + (rng() - 0.5) * 0.5;
     const tipChance = m.noTips ? 0 : 0.28;

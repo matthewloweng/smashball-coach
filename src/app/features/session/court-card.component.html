@@ -61,7 +61,7 @@
               <div class="side" data-side="B">
                 <span class="side-label">Challengers</span>
                 <span class="unit">{{ m.challenger }}</span>
-                <span class="dots" [attr.aria-label]="'Going for 3'">
+                <span class="dots" [attr.aria-label]="'Going for ' + m.dots.length">
                   @for (d of m.dots; track $index) {
                     <span class="dot" [class.on]="d"></span>
                   }

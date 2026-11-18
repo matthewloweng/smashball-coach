@@ -32,7 +32,7 @@ export class TallyTabComponent {
   protected readonly contexts = computed(() => {
     const plan = this.store.plan();
     const code = plan ? this.templates.game(plan.gameId).code : 'Game';
-    return ['6v6 baseline', `${code} small-sided`, '6v6 end of unit'];
+    return ['6v6 baseline', `${code} small-sided`, '6v6 midpoint', '6v6 end of unit'];
   });
 
   protected readonly context = signal<string | null>(null);
@@ -68,9 +68,12 @@ export class TallyTabComponent {
     // Pick a sensible default label from the block running now.
     effect(() => {
       const kind = this.store.block()?.kind;
-      const [baseline, small, end] = this.contexts();
+      const [baseline, small, mid, end] = this.contexts();
       if (this.context() === null) {
-        this.context.set(kind === 'transfer' ? end! : kind === 'play' ? small! : baseline!);
+        const plan = this.store.plan()?.number ?? 1;
+        this.context.set(
+          kind === 'transfer' ? (plan >= 6 ? end! : mid!) : kind === 'play' ? small! : baseline!,
+        );
       }
     });
     effect(() => {

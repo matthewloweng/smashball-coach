@@ -38,15 +38,15 @@ export const VOLLEYBALL_PACK: TemplatePack = {
     {
       id: 'level-d',
       code: 'D',
-      name: 'Tripleball 3v3',
-      format: '3v3, 9 m wide x 7 m or 4.5 m deep',
-      contacts: 'Pass, set, attack + two coach free balls',
+      name: '3v3 Triples (UVic chart)',
+      format: '3v3, 9 m wide x 7 m or 6 m deep',
+      contacts: 'Pass, set, attack + two free balls',
       aid: 'See G4 and G5 adaptation tables',
     },
     {
       id: 'level-e',
       code: 'E',
-      name: 'Wash 4v4',
+      name: 'Wash 4v4 (Tripleball)',
       format: '4v4, 7 m wide x 9 m per side',
       contacts: 'Full volleyball, big point + little point',
       aid: 'Down-ball instead of free ball for the leader',
@@ -62,33 +62,35 @@ export const VOLLEYBALL_PACK: TemplatePack = {
       fourRs: 'Read the server, Recover to base',
       format: '2v2 on half-width courts (4.5 m wide x 9 m deep per side)',
       players:
-        '6 players per mini court: Monarch pair, challenger pair, waiting pair. Split one full court lengthwise to run two games (12 players). The waiting pair serves to targets on court 2 until it is their turn.',
+        '2-3 pairs per mini court. Split one full court lengthwise to run two games (8-12 players). An odd player joins a pair as a sub. The waiting pair serves to targets on court 2 until it is their turn.',
       rear: {
         representation:
           'Serve, receive, set, attack in a 2v2 rally keeps the 6v6 sequence of pass to the net, set along the net, attack over the net.',
         exaggeration:
           'A rally only counts if it ends with a third-contact attack (smash or tip). No overpasses on contact 1 or 2.',
         adaptation:
-          'Monarchs who turn back two challenger pairs must defend the full 9 m depth. Challengers who lose twice in a row may catch-and-set once on contact 2.',
+          'Monarchs who turn back two challenger pairs must defend the full 9 m depth. Challengers who lose twice in a row may catch-and-set once on contact 2. If the Monarchs turn back four pairs in a row, challengers only need two rallies in a row.',
         rotation:
           'Challengers who win three in a row become Monarchs. Losing challengers go to the back of the queue, so every pair plays every pair.',
       },
       rules: [
         'Challengers serve to the Monarch side. Monarchs start on a 6 m deep court (tape or cones at 6 m).',
         'Rally scoring from the challengers\' view: win a rally and keep serving. At 2 points call "Going for 3".',
-        'Challengers who win the third rally become Monarchs. Challengers who lose any rally return to 0 and leave.',
+        'Challengers who win the third rally become Monarchs (the second, once the easing rule is on). Challengers who lose any rally return to 0 and leave.',
         'Three contacts are compulsory. The rally must finish with a smash or tip from contact 3.',
         'Play for 8-10 minutes. Score one team point for each time a pair becomes Monarch.',
       ],
       scoring: {
         mode: 'monarch',
         winStreak: 3,
+        easeAfterDefences: 4,
+        easedStreak: 2,
         challengerUnits: 3,
         unitLabel: 'Pair',
       },
       adaptations: [
         {
-          id: 'g1-a2',
+          id: 'g1-a1',
           kind: 'adaptation',
           trigger: {
             type: 'streak',
@@ -102,7 +104,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           cue: 'Monarchs defend the full 9 metres',
         },
         {
-          id: 'g1-a3',
+          id: 'g1-a2',
           kind: 'adaptation',
           trigger: {
             type: 'streak',
@@ -114,6 +116,20 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           when: 'Challengers lose twice in a row',
           effect: 'They may catch-and-set once on contact 2 in their next attempt.',
           cue: 'Challengers may catch and set once',
+        },
+        {
+          id: 'g1-a3',
+          kind: 'adaptation',
+          trigger: {
+            type: 'streak',
+            outcome: 'win',
+            unit: 'defence',
+            count: 4,
+            side: 'A',
+          },
+          when: 'Monarchs turn back four pairs in a row',
+          effect: 'Challengers only need 2 rallies in a row to take the court.',
+          cue: 'Challengers now need 2 in a row',
         },
       ],
       huddleQuestions: [
@@ -188,7 +204,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
       fourRs: "Read the hitter's approach, Respond early to short or deep",
       format: '2v2 on a 3 m wide x 9 m deep court per side',
       players:
-        '4 players per lane. On each full court, tape two 3 m lanes along the sidelines and leave the middle 3 m empty as a buffer. With 12 players, use three lanes (one court plus one lane of the second). Winners move up a lane, losers move down. If a ball rolls into another lane, both lanes stop and replay the point.',
+        '4 players per lane. On each full court, mark two 3 m lanes along the sidelines (badminton lines or cones) and leave the middle 3 m empty as a buffer. With 10-12 players, use three lanes (both lanes of court 1, one lane of court 2) and swap extra players in each game. Winners move up a lane, losers move down. If a ball rolls into another lane, both lanes stop and replay the point.',
       rear: {
         representation: 'Full 2v2 rally with serve, three contacts and an attack.',
         exaggeration:
@@ -196,17 +212,17 @@ export const VOLLEYBALL_PACK: TemplatePack = {
         adaptation:
           'A pair that leads by 3 loses the 2-point short zone. A pair that trails by 3 may serve from 3 m inside the end line.',
         rotation:
-          'Games to 11. Winners move up one court, losers move down one court and play a new pair.',
+          'Games to 7. Winners move up one lane, losers move down one lane and play a new pair.',
       },
       rules: [
         'Serve from behind the end line into the 3 m lane.',
         'Three contacts, rally ends with an attack or an error.',
         'Short-zone kill (tip or roll shot in front of the 3 m line) = 2 points. Deep-zone kill (last 3 m) = 2 points. Any other kill or opponent error = 1 point.',
-        'Play to 11, then rotate courts.',
+        'Play to 7, then rotate lanes.',
       ],
       scoring: {
         mode: 'rally',
-        target: 11,
+        target: 7,
         sideLabels: ['Pair A', 'Pair B'],
         actions: [
           {
@@ -540,32 +556,33 @@ export const VOLLEYBALL_PACK: TemplatePack = {
     {
       id: 'g4',
       code: 'G4',
-      name: 'Tripleball 3v3 with adaptation scoring',
+      name: '3v3 Triples with adaptation scoring',
       levelId: 'level-d',
       focus: ['Force', 'Risk'],
       fourRs: 'Read the set, Respond to the hitter',
       format: '3v3 on a full-width court shortened to 7 m deep per side',
       players:
-        'Four teams of 3 across two courts (12 players). Each court needs a feeder: you on court 1, the head coach on court 2 (or the team that did not lose the rally tosses the free ball two-handed). Winners move up a court, losers move down.',
+        'Teams of 3 across two courts (10-14 players). The waiting team feeds the free balls with a two-handed toss from the net post, so the coaches are free to count and coach. Winners move up a court, losers move down.',
       rear: {
         representation:
-          'Serve, pass to the net, set along the net, attack over the net. The coach adds two free balls after each serve rally so every "triple" has full three-contact play.',
+          'Serve, pass to the net, set along the net, attack over the net. Two free balls follow each serve rally so every "triple" has full three-contact play. Volleyball Canada\'s Tripleball is 4v4 then 6v6; this 3v3 step comes from the UVic level chart (Hopper, Knappett & Chapman, n.d.).',
         exaggeration:
           'Each serve rally is followed by a free ball to the team that lost it, then a free ball to the other team. Every ball is worth 1 point, so transition attacking is exaggerated.',
         adaptation:
           'The leading team loses options as it pulls ahead (see table). The trailing team gains one aid.',
         rotation:
-          'Games to 15. Players rotate positions clockwise each time their team wins back the serve. Winners move up a court.',
+          'Games to 9. Players rotate positions clockwise each time their team wins back the serve. Winners move up a court.',
       },
       rules: [
         'Serve from behind the end line. Rally scoring.',
-        'After each serve rally, the coach tosses a free ball to the team that lost that rally, then one to the other team. Three balls = one "triple".',
+        'After each serve rally, the feeder tosses a free ball to the team that lost that rally, then one to the other team. Three balls = one "triple".',
         'Every ball is played out and worth 1 point.',
         'The team that won more of the three balls serves the next triple. Rotate clockwise when you win back the serve.',
+        'First to 9 points.',
       ],
       scoring: {
         mode: 'rally',
-        target: 15,
+        target: 9,
         sideLabels: ['Team A', 'Team B'],
         actions: [
           {
@@ -581,9 +598,9 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           kind: 'adaptation',
           trigger: {
             type: 'lead',
-            by: 2,
+            by: 3,
           },
-          when: 'Lead by 2',
+          when: 'Lead by 3',
           effect: 'Your attacks must come from behind the 3 m line.',
           cue: 'Attack from behind 3 metres',
         },
@@ -710,26 +727,27 @@ export const VOLLEYBALL_PACK: TemplatePack = {
       levelId: 'level-d',
       focus: ['Space', 'Risk'],
       fourRs: "Read the hitter's shoulder, Cover behind the hitter",
-      format: '3v3 on a full-width court shortened to 4.5 m deep per side',
-      players: 'Four teams of 3 across two courts (12 players). Rotate opponents every game.',
+      format: '3v3 on a full-width court shortened to 6 m deep per side',
+      players:
+        'Teams of 3 across two courts (10-14 players). The waiting team scores and counts. Rotate opponents every game.',
       rear: {
         representation:
           '3v3 with one front-row blocker and two defenders, the same read-block-dig problem as 6v6.',
         exaggeration:
-          'A wide, shallow court exaggerates side-to-side space: line versus cross-court angle. A point won by a block scores 2. A kill into the 1.5 m sideline channel scores 2.',
+          'A wide, shortened court exaggerates side-to-side space: line versus cross-court angle, while 6 m leaves room for real swings to land. A point won by a block scores 2. A kill into the 1.5 m sideline channel scores 2.',
         adaptation:
           'A team leading by 3 must announce its block before each serve ("line" or "angle"), and its blocker must take that side all rally, so the opponent knows where the open space is. A team trailing by 3 serves from 2 m inside the end line.',
-        rotation: 'Games to 11, then rotate to play a different team.',
+        rotation: 'Games to 7, then rotate to play a different team.',
       },
       rules: [
-        'Rally scoring to 11.',
+        'Rally scoring to 7.',
         'Point won from a block = 2 points.',
         'Kill landing in the sideline channel (1.5 m wide, marked with cones) = 2 points.',
         'Every other point = 1.',
       ],
       scoring: {
         mode: 'rally',
-        target: 11,
+        target: 7,
         sideLabels: ['Team A', 'Team B'],
         actions: [
           {
@@ -803,8 +821,8 @@ export const VOLLEYBALL_PACK: TemplatePack = {
       diagram: {
         active: [
           {
-            u0: -4.5,
-            u1: 4.5,
+            u0: -6,
+            u1: 6,
             v0: 0,
             v1: 9,
           },
@@ -812,7 +830,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
         zones: [
           {
             u0: 0,
-            u1: 4.5,
+            u1: 6,
             v0: 0,
             v1: 1.5,
             kind: 'score',
@@ -820,14 +838,14 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           },
           {
             u0: 0,
-            u1: 4.5,
+            u1: 6,
             v0: 7.5,
             v1: 9,
             kind: 'score',
             label: 'Line 2 pts',
           },
           {
-            u0: -4.5,
+            u0: -6,
             u1: 0,
             v0: 0,
             v1: 1.5,
@@ -835,7 +853,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
             label: 'Line 2 pts',
           },
           {
-            u0: -4.5,
+            u0: -6,
             u1: 0,
             v0: 7.5,
             v1: 9,
@@ -845,34 +863,34 @@ export const VOLLEYBALL_PACK: TemplatePack = {
         ],
         lines: [
           {
-            u: 4.5,
+            u: 6,
             v0: 0,
             v1: 9,
-            label: '4.5 m',
+            label: '6 m',
           },
           {
-            u: -4.5,
+            u: -6,
             v0: 0,
             v1: 9,
-            label: '4.5 m',
+            label: '6 m',
           },
         ],
         A: [
           [0.6, 1.8, 'B'],
-          [3.2, 3.5, ''],
-          [3.2, 6.8, ''],
+          [4.2, 3.5, ''],
+          [4.2, 6.6, ''],
         ],
         B: [
           [-0.6, 7.6, 'H'],
-          [-2, 4.5, ''],
-          [-3.4, 2, ''],
+          [-2.6, 4.5, ''],
+          [-4.4, 2, ''],
         ],
         arrows: [
-          [-0.6, 7.6, 3.8, 8.3, 'attack'],
-          [-0.6, 7.6, 3.6, 1, 'attack2'],
+          [-0.6, 7.6, 5, 8.3, 'attack'],
+          [-0.6, 7.6, 4.8, 0.8, 'attack2'],
         ],
         caption:
-          'One full court shortened to 4.5 m per side. H = hitter, B = blocker. Sideline channels score 2.',
+          'One full court shortened to 6 m per side. H = hitter, B = blocker. Sideline channels score 2.',
       },
     },
     {
@@ -884,7 +902,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
       fourRs: 'Recover to base, Support in transition',
       format: '4v4 on a 7 m wide x 9 m deep court per side',
       players:
-        'Three teams of 4 on court 1 (12 players): two play, one waits. On each wash, two waiting players observe with 4Rs cards and two serve to targets on court 2, then they swap. Court 2 hosts the 6v6 at the end.',
+        'Three teams of 3-4 on court 1 (10-14 players): two play, one waits. On each wash, two waiting players observe with 4Rs cards and the others serve to targets on court 2, then they swap. Court 2 hosts the 6v6 at the end.',
       rear: {
         representation:
           "4v4 with two front and two back players, the closest small-sided version of 6v6 positions (Volleyball Canada's bridge format).",
@@ -898,12 +916,12 @@ export const VOLLEYBALL_PACK: TemplatePack = {
       rules: [
         'Serve rally (big point), then the coach immediately tosses a free ball to the team that lost it (little point).',
         'Win both = 1 point. Split = no point (a "wash").',
-        'Games to 5 points. Teams rotate positions each point they score.',
+        'Games to 3 points (washes make points scarce). Teams rotate positions each point they score.',
         'Finish the session with 5 minutes of 6v6 on the second court to check transfer.',
       ],
       scoring: {
         mode: 'wash',
-        target: 5,
+        target: 3,
         sideLabels: ['Team A', 'Team B'],
       },
       adaptations: [
@@ -1046,8 +1064,8 @@ export const VOLLEYBALL_PACK: TemplatePack = {
         {
           phase: 'Hitting zone',
           cue: 'Float: short punch, stop the hand at the target. Topspin: snap the wrist over the top of the ball.',
-          principle: 'M',
-          why: 'A float has almost no spin, so small changes in airflow around the panels push it sideways or down late in flight (Hong et al., 2018). Topspin creates a downward Magnus force, so a hard serve still drops into the court (Martins et al., 2022).',
+          principle: 'C',
+          why: 'The wrist snap is the last link of the coordination chain and decides the spin. The flight that follows is aerodynamics: a float has almost no spin, so airflow around the panels moves it late (Hong et al., 2018), while topspin creates a downward Magnus force that drops a hard serve into the court (Martins et al., 2022).',
         },
       ],
       task: 'Serve 5 to a hoop target in serve-receive zone 1, 6 or 5. Hoop = 2, in court = 1. Score 8+: move back 1 m. Topspin bonus +1 per ball.',
@@ -1079,13 +1097,13 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           phase: 'Contact surface',
           cue: 'Thumbs together, elbows locked, flat platform from wrists to elbows.',
           principle: 'S',
-          why: 'A flat, stable platform gives a predictable rebound.',
+          why: 'If the elbows bend or the thumbs split, the two forearms point different ways and the rebound is a guess. One flat, locked surface gives one rebound angle.',
         },
         {
           phase: 'Impact point',
           cue: 'Contact on the forearms above the wrists, in front of the hips.',
           principle: 'O',
-          why: 'The platform pushes back on the ball (opposite force), and the ball leaves roughly at right angles to the platform, so the tilt of the platform sets the direction.',
+          why: 'The platform pushes back on the ball (opposite force). The ball rebounds off the platform at about the same angle it came in, so tilt the platform until that rebound points at the setter.',
         },
         {
           phase: 'Hitting zone',
@@ -1196,7 +1214,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           phase: 'Recovery',
           cue: 'Same landing and cover as a full attack.',
           principle: 'O',
-          why: 'A two-foot landing spreads ground reaction force.',
+          why: 'A two-foot landing with bent knees spreads the ground reaction force across both legs and over more time, and leaves you balanced to cover a blocked ball.',
         },
         {
           phase: 'Set-up',
@@ -1239,13 +1257,13 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           phase: 'Recovery',
           cue: 'Land on two feet, turn toward the ball, and get off the net to approach or cover.',
           principle: 'O',
-          why: 'Two-foot landings share the load.',
+          why: 'Blockers land many times a practice. Two feet share the ground reaction force between both legs, which protects knees and ankles and sets up the next move.',
         },
         {
           phase: 'Set-up',
           cue: "An elbow's length from the net, hands up at shoulder height. Eyes: ball, setter, ball, hitter.",
           principle: 'B',
-          why: 'A balanced, square stance lets you move either way.',
+          why: 'Feet shoulder-width and weight on the balls of the feet keep your centre of mass over a base you can push off in either direction.',
         },
         {
           phase: 'Contact surface',
@@ -1294,7 +1312,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           phase: 'Contact surface',
           cue: 'Platform below the waist, or hands together palms up for an overhead save.',
           principle: 'S',
-          why: 'A stable surface controls the rebound.',
+          why: 'A firm platform, or locked hands overhead, means the rebound depends on your angle, not on arms that give way on impact.',
         },
         {
           phase: 'Impact point',
@@ -1323,7 +1341,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
       name: 'Contact count',
       durationSec: 180,
       instructions:
-        'Watch one side of one court and tap each time it happens. Do this in a 6v6 at the start of practice 1, in a small-sided game, and in a 6v6 at the end of practice 6.',
+        'Watch one side of one court and tap each time it happens. Do two counts per format: 6v6 at practices 1, 3 and 6, and in the small-sided games.',
       counters: [
         {
           key: 'contacts',
@@ -1338,6 +1356,11 @@ export const VOLLEYBALL_PACK: TemplatePack = {
         {
           key: 'threeContact',
           label: 'Pass, set and attack',
+          input: 'tap',
+        },
+        {
+          key: 'attacks',
+          label: 'Attack attempts',
           input: 'tap',
         },
         {
@@ -1370,6 +1393,13 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           format: 'ratio',
         },
         {
+          key: 'attacksPerPlayer',
+          label: 'Attack attempts per player',
+          numerator: 'attacks',
+          denominator: 'players',
+          format: 'ratio',
+        },
+        {
           key: 'threeContactShare',
           label: 'Rallies with pass, set, attack',
           numerator: 'threeContact',
@@ -1397,28 +1427,28 @@ export const VOLLEYBALL_PACK: TemplatePack = {
       blocks: [
         {
           startMin: 0,
-          endMin: 5,
+          endMin: 7,
           kind: 'baseline',
-          text: 'Normal 6v6 scrimmage on court 1. Fill in the contact-count sheet for 3 minutes.',
+          text: '6v6 scrimmage on court 1, run by the head coach. Matt does two 3-minute contact counts, one on each side.',
           tallySheetId: 'contact-count',
         },
         {
-          startMin: 5,
-          endMin: 13,
+          startMin: 7,
+          endMin: 14,
           kind: 'play',
           text: 'G1 Monarch 2v2 on court 1 (two mini courts). Waiting pairs serve to targets on court 2 until their turn.',
           gameId: 'g1',
           adaptationsOn: false,
         },
         {
-          startMin: 13,
-          endMin: 15,
+          startMin: 14,
+          endMin: 16,
           kind: 'huddle',
-          text: 'Ask: "Where is the open space when both defenders are back?" Take two answers.',
+          text: 'Ask: "Where is the open space when both defenders are back?" Write two answers down word for word.',
           question: 'Where is the open space when both defenders are back?',
         },
         {
-          startMin: 15,
+          startMin: 16,
           endMin: 22,
           kind: 'practice',
           text: 'Forearm pass task card (serve receive to a target).',
@@ -1428,14 +1458,16 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           startMin: 22,
           endMin: 30,
           kind: 'play',
-          text: 'G1 again with the adaptation rules on. Contact-count sheet for 3 minutes on one mini court.',
+          text: 'G1 again with the adaptation rules on. Matt does a 3-minute contact count on one mini court.',
           gameId: 'g1',
           adaptationsOn: true,
+          tallySheetId: 'contact-count',
         },
       ],
       record: [
-        'Contact counts and attacks dug: 6v6 baseline vs. 2v2',
-        "How many times each mini court's Monarchs changed",
+        'Contact counts, attack attempts and attacks dug: 6v6 baseline vs. 2v2',
+        "How many times each mini court's Monarchs changed, and whether the easing rule was needed",
+        'Huddle answers, word for word (no names)',
         'One thing that surprised you',
       ],
     },
@@ -1451,7 +1483,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           startMin: 0,
           endMin: 10,
           kind: 'play',
-          text: 'G2 on four 3 m lanes across both courts. Up-and-down court rotation.',
+          text: 'G2 on three 3 m lanes (two on court 1, one on court 2). Up-and-down lane rotation; extra players swap in each game.',
           gameId: 'g2',
           adaptationsOn: false,
         },
@@ -1473,15 +1505,17 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           startMin: 20,
           endMin: 30,
           kind: 'play',
-          text: 'G2 with adaptation rules. Note which scoring zones get used.',
+          text: 'G2 with adaptation rules. A waiting player tallies short and deep kills on one lane; Matt does a 3-minute contact count.',
           gameId: 'g2',
           adaptationsOn: true,
+          tallySheetId: 'contact-count',
         },
       ],
       record: [
         'Number of short-zone and deep-zone kills (tally)',
         'Did games get closer after the adaptation rules?',
-        'Rally length on one lane for 3 minutes',
+        'Contact count on one lane',
+        'Huddle answers, word for word',
       ],
     },
     {
@@ -1522,23 +1556,31 @@ export const VOLLEYBALL_PACK: TemplatePack = {
         },
         {
           startMin: 20,
-          endMin: 30,
+          endMin: 26,
           kind: 'play',
           text: 'G3 with adaptation rules.',
           gameId: 'g3',
           adaptationsOn: true,
         },
+        {
+          startMin: 26,
+          endMin: 30,
+          kind: 'transfer',
+          text: 'Midpoint 6v6 check on court 2: one 3-minute contact count, so there is a comparison even if practice 6 is cut short.',
+          tallySheetId: 'contact-count',
+        },
       ],
       record: [
         'Most common 4Rs cue called by observers',
-        'Before/after: how often hitters were covered (tally for 3 minutes)',
-        'Player comments (no names)',
+        'Base and Cover tally on one rotating player (2 minutes, before and after the practice block)',
+        'Midpoint 6v6 contact count',
+        'Huddle answers, word for word',
       ],
     },
     {
       id: 'p4',
       number: 4,
-      title: 'Tripleball 3v3',
+      title: '3v3 Triples',
       goal: 'Use coach free balls to multiply transition attacks and reward good setting.',
       gameId: 'g4',
       cardId: 'c3',
@@ -1547,9 +1589,10 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           startMin: 0,
           endMin: 10,
           kind: 'play',
-          text: 'G4 Tripleball on both courts (four teams of 3).',
+          text: 'G4 3v3 Triples on both courts. The waiting team feeds the free balls; Matt counts court 1 for 3 minutes.',
           gameId: 'g4',
           adaptationsOn: false,
+          tallySheetId: 'contact-count',
         },
         {
           startMin: 10,
@@ -1569,9 +1612,10 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           startMin: 20,
           endMin: 30,
           kind: 'play',
-          text: 'G4 with adaptation scoring. Winners up, losers down.',
+          text: 'G4 with adaptation scoring. Winners up, losers down. A second 3-minute count on court 1.',
           gameId: 'g4',
           adaptationsOn: true,
+          tallySheetId: 'contact-count',
         },
       ],
       record: [
@@ -1607,16 +1651,17 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           startMin: 12,
           endMin: 20,
           kind: 'practice',
-          text: 'Block task card, then the dig task card.',
+          text: 'Block task card. Back-row players read line or angle off the block and dig to the middle.',
           cardId: 'c6',
         },
         {
           startMin: 20,
           endMin: 30,
           kind: 'play',
-          text: 'G5 with adaptation rules. Rotate opponents.',
+          text: 'G5 with adaptation rules. Rotate opponents. The waiting team keeps score; Matt counts attacks faced and dug for 3 minutes.',
           gameId: 'g5',
           adaptationsOn: true,
+          tallySheetId: 'contact-count',
         },
       ],
       record: [
@@ -1637,9 +1682,10 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           startMin: 0,
           endMin: 10,
           kind: 'play',
-          text: 'G6 Wash 4v4 on court 1. Waiting team: two observe with the 4Rs card, two serve to targets on court 2.',
+          text: 'G6 Wash 4v4 on court 1, head coach feeding. Matt counts for 3 minutes. Waiting team: two observe with the 4Rs card, the rest serve to targets on court 2.',
           gameId: 'g6',
           adaptationsOn: false,
+          tallySheetId: 'contact-count',
         },
         {
           startMin: 10,
@@ -1667,12 +1713,12 @@ export const VOLLEYBALL_PACK: TemplatePack = {
           startMin: 22,
           endMin: 30,
           kind: 'transfer',
-          text: '6v6 scrimmage. Repeat the 3-minute contact-count sheet. Finish with the anonymous show-of-hands check-in.',
+          text: '6v6 scrimmage. Two 3-minute contact counts, one on each side, as in practice 1. Finish with the anonymous show-of-hands check-in.',
           tallySheetId: 'contact-count',
         },
       ],
       record: [
-        'Contact counts and attacks dug: 6v6 end vs. 6v6 baseline',
+        'Contact counts, attack attempts and attacks dug: 6v6 end vs. midpoint vs. baseline',
         'Show-of-hands tallies (enjoyment, touches, confidence)',
         "What you'd keep or change",
       ],

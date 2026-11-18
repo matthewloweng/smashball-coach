@@ -3,7 +3,7 @@ import { IonButton, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { arrowUndo, flag } from 'ionicons/icons';
 import { sideLabel, unitName } from '../../core/engine/labels';
-import { targetReached } from '../../core/engine/match';
+import { monarchTarget, targetReached } from '../../core/engine/match';
 import { CueService } from '../../core/services/cue.service';
 import { SessionStore } from '../../core/services/session.store';
 import { TemplateService } from '../../core/services/template.service';
@@ -51,7 +51,7 @@ export class CourtCardComponent {
       monarch: unitName(label, m.monarch),
       challenger: unitName(label, m.challenger),
       next: m.queue.map((i) => unitName(label, i)).join(', '),
-      dots: Array.from({ length: g.scoring.winStreak }, (_, i) => i < m.progress),
+      dots: Array.from({ length: monarchTarget(g.scoring, m) }, (_, i) => i < m.progress),
       crowns: m.crowns.map((c, i) => ({ unit: unitName(label, i), crowns: c })),
       defences: m.defences,
     };

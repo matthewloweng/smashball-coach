@@ -6,7 +6,13 @@
  * and a case to `applyEvent`.
  */
 import { SessionEvent } from '../models/session.models';
-import { GameTemplate, ScoringConfig, Side, StreakUnit } from '../models/template.models';
+import {
+  GameTemplate,
+  MonarchScoring,
+  ScoringConfig,
+  Side,
+  StreakUnit,
+} from '../models/template.models';
 import { effectiveEvents } from './events';
 
 export type Score = Record<Side, number>;
@@ -179,7 +185,7 @@ function monarchRally(
 
   if (winner === 'B') {
     const progress = m.progress + 1;
-    if (progress >= scoring.winStreak) {
+    if (progress >= monarchTarget(scoring, m)) {
       // Challengers take the court; old Monarchs go to the back of the queue.
       crowns[m.challenger] = (crowns[m.challenger] ?? 0) + 1;
       failedAttempts[m.challenger] = 0;
@@ -226,6 +232,12 @@ function monarchRally(
     streaks,
     gameStartedAt: state.gameStartedAt ?? at,
   };
+}
+
+/** Rallies in a row the current challengers need, after any easing rule. */
+export function monarchTarget(scoring: MonarchScoring, m: MonarchState): number {
+  const eased = scoring.easeAfterDefences !== undefined && m.defences >= scoring.easeAfterDefences;
+  return eased ? (scoring.easedStreak ?? scoring.winStreak) : scoring.winStreak;
 }
 
 /** Applies one event to the match. Events for other courts are ignored. */
