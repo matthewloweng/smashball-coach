@@ -47,6 +47,8 @@ export interface GameTemplate {
   code: string;
   name: string;
   levelId: string;
+  /** Set when this game is a scoring variation of another game on the same court. */
+  variantOf?: string;
   focus: TacticalConcept[];
   /** 4Rs focus, as a sentence. */
   fourRs: string;

@@ -27,9 +27,9 @@ describe('SessionStore', () => {
     repo = TestBed.inject(SessionRepository);
   });
 
-  it('starts a practice with one court per lane, all on the plan game', async () => {
+  it('starts a practice with one court per mini court, all on the plan game', async () => {
     const s = await store.start('p2', 3);
-    expect(s.courts.map((c) => c.gameId)).toEqual(['g2', 'g2', 'g2']);
+    expect(s.courts.map((c) => c.gameId)).toEqual(['g1b', 'g1b', 'g1b']);
     expect(store.plan()?.number).toBe(2);
     expect(await repo.get(s.id)).not.toBeNull();
   });

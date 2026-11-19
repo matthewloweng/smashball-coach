@@ -82,10 +82,10 @@ const SCHEDULE = [
 
 const NOTES: Record<string, string> = {
   p1: 'Sample practice (simulated). Most 6v6 rallies ended on the serve or the first pass. In Monarch, pairs got far more touches, and the full-depth rule kicked in quickly on the stronger court.',
-  p2: 'Sample practice (simulated). Tips and roll shots started to show up once the short and deep zones scored 2. The lead-by-3 rule kept lane games within a few points.',
-  p3: 'Sample practice (simulated). Observers called "Base" most often. Covering the hitter improved in the second game.',
+  p2: 'Sample practice (simulated). Tips and roll shots started to show up once the short and deep zones scored 2. The lead-by-3 rule kept most games within a few points, with no new court set-up needed.',
+  p3: 'Sample practice (simulated). On the GPAI forms filled in by players, Base had the most ticks. Support (covering the hitter) improved in the second game.',
   p4: 'Sample practice (simulated). Smaller group today. Free balls gave every triple a three-contact chance; the trailing team used catch-and-set and games stayed close.',
-  p5: 'Sample practice (simulated). Announcing the block helped the trailing team read the open space. Block points were rare but noticed.',
+  p5: 'Sample practice (simulated). Back-row attacks only gave the blocker more time to read. Announcing the block helped the trailing team find the open space. Block points were rare but noticed.',
   p6: 'Sample practice (simulated). Wash games ran long; the down-ball rule stopped one team running away. End-of-unit 6v6 count is below.',
 };
 
@@ -140,6 +140,7 @@ function modsFor(
 ): Mods {
   const m = noMods();
   m.attackPenalty += levelPenalty;
+  if (game.id === 'g3' || game.id === 'g3b') m.attackPenalty += 0.1; // back-row attacks only
   for (const r of activeRules(game, state, adaptationsOn)) {
     if (r.side !== side) continue;
     switch (r.rule.id) {
@@ -149,30 +150,29 @@ function modsFor(
       case 'g1-a2':
         m.catchSet = true;
         break; // challengers catch-and-set
-      case 'g2-a2':
-      case 'g5-a2':
+      case 'g1b-a2':
+      case 'g3b-a2':
         m.serveBonus += 0.12;
         break; // serve from inside
-      case 'g2-a3':
-        m.digPenalty += 0.08;
-        break; // wider lane to defend
-      case 'g3-a2':
-      case 'g4-a1':
+      case 'g2-a2':
         m.attackPenalty += 0.12;
-        break; // back-row attacks only
-      case 'g3-a3':
+        break; // Tag Team: back-row attacks only
+      case 'g2-a3':
         m.passBonus += 0.15;
         break; // first pass may be caught
-      case 'g4-a2':
+      case 'g3-a1':
         m.noTips = true;
-        break;
-      case 'g4-a3':
+        break; // Triples: lead by 3, no tips
+      case 'g3-a2':
+        m.attackPenalty -= 0.06;
+        break; // Triples: one front-row attack per triple
+      case 'g3-a3':
         m.catchSet = true;
         break;
-      case 'g5-a1':
+      case 'g3b-a1':
         m.blockPenalty += 0.15;
         break; // announced block
-      case 'g6-a3':
+      case 'g4-a3':
         m.passBonus += 0.2;
         break; // high free ball to setter
     }
@@ -212,7 +212,14 @@ function courtsFor(rng: Rng, game: GameTemplate, players: Ratings[]): CourtPlan[
       return { setup: { id: `court-${i + 1}`, label: label(i), gameId: game.id, units }, pool };
     });
   }
-  const count = game.id === 'g6' ? 1 : game.id === 'g2' ? 2 : players.length >= 11 ? 2 : 1;
+  const count =
+    game.id === 'g4'
+      ? 1
+      : game.id === 'g1b'
+        ? Math.min(4, Math.max(2, Math.floor(players.length / 4)))
+        : players.length >= 11
+          ? 2
+          : 1;
   const per = Math.ceil(players.length / count);
   return Array.from({ length: count }, (_, i) => ({
     setup: { id: `court-${i + 1}`, label: label(i), gameId: game.id },
@@ -222,7 +229,7 @@ function courtsFor(rng: Rng, game: GameTemplate, players: Ratings[]): CourtPlan[
 
 /** Players per side on court for a team game. */
 const sideSize = (game: GameTemplate) =>
-  game.id === 'g6' ? 4 : /\b3v3\b|2\(1\)/.test(game.format) || game.id === 'g3' ? 3 : 2;
+  game.id === 'g4' ? 4 : /\b3v3\b/.test(game.format) || game.id === 'g2' ? 3 : 2;
 
 /* ------------------------------------------------------------------ */
 /* Playing one block of one game on one court                          */
@@ -297,11 +304,12 @@ function playTeamBlock(
     { players: teams[1], mods: mods('B') },
   ];
 
-  // G4: a team that won the last game starts the next one 0-2 down.
+  // G1b and G3: a team that won the last game starts the next one 0-2 down.
+  const handicapRule = ({ g1b: 'g1b-a3', g3: 'g3-a4' } as Record<string, string>)[game.id];
   const handicapStart = () => {
-    if (game.id !== 'g4' || !adaptationsOn) return;
+    if (!handicapRule || !adaptationsOn) return;
     for (const side of sides) {
-      if (isActive(game, run.state, side, 'g4-a4', adaptationsOn)) {
+      if (isActive(game, run.state, side, handicapRule, adaptationsOn)) {
         const other: Side = side === 'A' ? 'B' : 'A';
         b.t = t;
         apply(b, run, { type: 'point', courtId, side: other, actionId: 'point', points: 1 });
@@ -324,7 +332,7 @@ function playTeamBlock(
         game,
         run.state,
         big.winner === 0 ? 'A' : 'B',
-        'g6-a1',
+        'g4-a1',
         adaptationsOn,
       )
         ? 'down'
@@ -339,8 +347,8 @@ function playTeamBlock(
       if (winner !== 'split') server = winner === 'A' ? 0 : 1;
       // Stay on court three times: rotate off and observe.
       if (
-        isActive(game, run.state, 'A', 'g6-a2', adaptationsOn) ||
-        isActive(game, run.state, 'B', 'g6-a2', adaptationsOn)
+        isActive(game, run.state, 'A', 'g4-a2', adaptationsOn) ||
+        isActive(game, run.state, 'B', 'g4-a2', adaptationsOn)
       ) {
         rotationSwap = true;
       }
@@ -362,7 +370,7 @@ function playTeamBlock(
         adaptationsOn,
       );
       server = rally.winner;
-      if (game.id === 'g4') {
+      if (game.id === 'g3' || game.id === 'g3b') {
         // Tripleball: two coach free balls after each serve rally.
         const loserFirst: 0 | 1 = rally.winner === 0 ? 0 : 1; // ball goes to the team that lost
         for (const toTeam of [rally.winner === 0 ? 1 : 0, rally.winner] as (0 | 1)[]) {
@@ -417,25 +425,25 @@ function scoreRally(
 ): void {
   const { game } = run;
   const courtId = run.plan.setup.id;
-  // G3: a team that won the last game scores only on its own serve.
+  // G2 Tag Team: a team that won the last game scores only on its own serve.
   if (
-    game.id === 'g3' &&
+    game.id === 'g2' &&
     serving &&
     serving !== winner &&
-    isActive(game, run.state, winner, 'g3-a1', adaptationsOn)
+    isActive(game, run.state, winner, 'g2-a1', adaptationsOn)
   )
     return;
   let actionId = 'point';
   let points = 1;
-  if (game.id === 'g2' && finish === 'kill' && shot !== 'hard') {
+  if (game.id === 'g1b' && finish === 'kill' && shot !== 'hard') {
     const shortZone = shot === 'tip';
-    const loseShort = isActive(game, run.state, winner, 'g2-a1', adaptationsOn);
+    const loseShort = isActive(game, run.state, winner, 'g1b-a1', adaptationsOn);
     if (shortZone && !loseShort) [actionId, points] = ['short', 2];
     if (!shortZone && rng() < 0.6) [actionId, points] = ['deep', 2];
   }
-  if (game.id === 'g5') {
+  if (game.id === 'g3b') {
     const other: Side = winner === 'A' ? 'B' : 'A';
-    const wider = isActive(game, run.state, other, 'g5-a3', adaptationsOn) ? 0.12 : 0;
+    const wider = isActive(game, run.state, other, 'g3b-a3', adaptationsOn) ? 0.12 : 0;
     if (finish === 'block') [actionId, points] = ['block', 2];
     else if (finish === 'kill' && shot === 'hard' && rng() < 0.22 + wider)
       [actionId, points] = ['channel', 2];

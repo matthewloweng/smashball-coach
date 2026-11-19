@@ -66,7 +66,7 @@ export class HomePage {
     const courts = await this.alerts.create({
       header: `Practice ${plan.number}`,
       subHeader: plan.title,
-      message: 'How many courts or lanes are you scoring?',
+      message: 'How many courts are you scoring?',
       inputs: [1, 2, 3, 4].map((n) => ({
         type: 'radio' as const,
         label: `${n}`,

@@ -20,30 +20,30 @@ const ev = (e: NewSessionEvent): SessionEvent =>
 const point = (side: 'A' | 'B', points = 1, actionId = 'point', courtId = 'c1') =>
   ev({ type: 'point', courtId, side, actionId, points });
 
-describe('rally scoring and lead/trail triggers (G2)', () => {
+describe('rally scoring and lead/trail triggers (G1b)', () => {
   it('adds points, tracks margins and switches on lead-by-3 for the leader only', () => {
     const events = [point('A'), point('A', 2, 'short'), point('B'), point('A', 2, 'deep')];
-    const s = replayCourt('c1', 'g2', events, gameFor);
+    const s = replayCourt('c1', 'g1b', events, gameFor);
     expect(s.score).toEqual({ A: 5, B: 1 });
     expect(s.margins).toEqual([1, 3, 2, 4]);
     expect(s.actionCounts).toEqual({ point: 2, short: 1, deep: 1 });
 
-    const active = activeRules(gameFor('g2'), s);
+    const active = activeRules(gameFor('g1b'), s);
     const keys = active.map((r) => r.key);
-    expect(keys).toContain('g2-a1:A'); // lead by 3
-    expect(keys).toContain('g2-a2:B'); // trail by 3
-    expect(keys).not.toContain('g2-a1:B');
+    expect(keys).toContain('g1b-a1:A'); // lead by 3
+    expect(keys).toContain('g1b-a2:B'); // trail by 3
+    expect(keys).not.toContain('g1b-a1:B');
   });
 
   it('respects undo', () => {
     const p = point('A', 2, 'short');
     const events = [p, ev({ type: 'undo', targetId: p.id })];
-    expect(replayCourt('c1', 'g2', events, gameFor).score).toEqual({ A: 0, B: 0 });
+    expect(replayCourt('c1', 'g1b', events, gameFor).score).toEqual({ A: 0, B: 0 });
   });
 
   it('ends a game, records it and starts the game-win streak', () => {
     const events = [point('A'), point('A'), ev({ type: 'game.ended', courtId: 'c1' })];
-    const s = replayCourt('c1', 'g2', events, gameFor);
+    const s = replayCourt('c1', 'g1b', events, gameFor);
     expect(s.score).toEqual({ A: 0, B: 0 });
     expect(s.finished).toHaveLength(1);
     expect(s.finished[0]?.winner).toBe('A');
@@ -52,41 +52,41 @@ describe('rally scoring and lead/trail triggers (G2)', () => {
   });
 
   it('switches off adaptations when they are turned off for a block', () => {
-    const s = replayCourt('c1', 'g2', [point('A'), point('A'), point('A')], gameFor);
-    expect(activeRules(gameFor('g2'), s, false)).toHaveLength(0);
+    const s = replayCourt('c1', 'g1b', [point('A'), point('A'), point('A')], gameFor);
+    expect(activeRules(gameFor('g1b'), s, false)).toHaveLength(0);
   });
 
   it('reports when a side reaches the target', () => {
     const events = Array.from({ length: 11 }, () => point('B'));
-    const s = replayCourt('c1', 'g2', events, gameFor);
-    expect(targetReached(s, gameFor('g2').scoring)).toBe('B');
+    const s = replayCourt('c1', 'g1b', events, gameFor);
+    expect(targetReached(s, gameFor('g1b').scoring)).toBe('B');
   });
 });
 
-describe('game streak triggers (G4)', () => {
-  it('flags the winner of the last game, and lead-by-2 / lead-by-4 stack', () => {
-    const g = gameFor('g4');
-    const end = () => ev({ type: 'game.ended', courtId: 'c1' });
-    const s = replayCourt(
-      'c1',
-      'g4',
-      [point('B'), end(), point('A'), point('A'), point('A'), point('A')],
-      gameFor,
-    );
-    const keys = activeRules(g, s).map((r) => r.key);
-    expect(keys).toEqual(expect.arrayContaining(['g4-a1:A', 'g4-a2:A', 'g4-a3:B', 'g4-a4:B']));
-  });
-});
-
-describe('every-points rotation cues (G3)', () => {
-  it('cues Team A every 2 points and Team B every 3', () => {
+describe('game streak and lead/trail triggers (G3 Triples)', () => {
+  it('flags the winner of the last game, and lead-by-3 / trail-by-3 / trail-by-5 stack', () => {
     const g = gameFor('g3');
-    let s = replayCourt('c1', 'g3', [point('A')], gameFor);
-    expect(activeRules(g, s).map((r) => r.key)).not.toContain('g3-rot-a:A');
-    s = replayCourt('c1', 'g3', [point('A'), point('A')], gameFor);
-    expect(activeRules(g, s).map((r) => r.key)).toContain('g3-rot-a:A');
-    s = replayCourt('c1', 'g3', [point('B'), point('B'), point('B')], gameFor);
-    expect(activeRules(g, s).map((r) => r.key)).toContain('g3-rot-b:B');
+    const end = () => ev({ type: 'game.ended', courtId: 'c1' });
+    const four = [point('A'), point('A'), point('A'), point('A')];
+    let s = replayCourt('c1', 'g3', [point('B'), end(), ...four], gameFor);
+    let keys = activeRules(g, s).map((r) => r.key);
+    expect(keys).toEqual(expect.arrayContaining(['g3-a1:A', 'g3-a2:B', 'g3-a4:B']));
+    expect(keys).not.toContain('g3-a3:B');
+    s = replayCourt('c1', 'g3', [point('B'), end(), ...four, point('A')], gameFor);
+    keys = activeRules(g, s).map((r) => r.key);
+    expect(keys).toContain('g3-a3:B');
+  });
+});
+
+describe('every-points rotation cues (G2 Tag Team)', () => {
+  it('cues Team A every 2 points and Team B every 3', () => {
+    const g = gameFor('g2');
+    let s = replayCourt('c1', 'g2', [point('A')], gameFor);
+    expect(activeRules(g, s).map((r) => r.key)).not.toContain('g2-rot-a:A');
+    s = replayCourt('c1', 'g2', [point('A'), point('A')], gameFor);
+    expect(activeRules(g, s).map((r) => r.key)).toContain('g2-rot-a:A');
+    s = replayCourt('c1', 'g2', [point('B'), point('B'), point('B')], gameFor);
+    expect(activeRules(g, s).map((r) => r.key)).toContain('g2-rot-b:B');
   });
 });
 
@@ -137,27 +137,27 @@ describe('Monarch easing rule (G1)', () => {
   });
 });
 
-describe('wash scoring (G6)', () => {
+describe('wash scoring (G4)', () => {
   const wash = (winner: 'A' | 'B' | 'split') => ev({ type: 'wash', courtId: 'c1', winner });
 
   it('scores only full wins, and a split resets win streaks', () => {
-    let s = replayCourt('c1', 'g6', [wash('A'), wash('split'), wash('A')], gameFor);
+    let s = replayCourt('c1', 'g4', [wash('A'), wash('split'), wash('A')], gameFor);
     expect(s.score).toEqual({ A: 2, B: 0 });
     expect(s.streaks.A.wash?.wins).toBe(1);
-    s = replayCourt('c1', 'g6', [wash('A'), wash('A')], gameFor);
-    expect(activeRules(gameFor('g6'), s).map((r) => r.key)).toContain('g6-a1:A');
+    s = replayCourt('c1', 'g4', [wash('A'), wash('A')], gameFor);
+    expect(activeRules(gameFor('g4'), s).map((r) => r.key)).toContain('g4-a1:A');
   });
 });
 
 describe('newlyActive', () => {
   it('returns only rules that just switched on', () => {
-    const g = gameFor('g2');
-    const before = activeRules(g, replayCourt('c1', 'g2', [point('A'), point('A')], gameFor));
+    const g = gameFor('g1b');
+    const before = activeRules(g, replayCourt('c1', 'g1b', [point('A'), point('A')], gameFor));
     const after = activeRules(
       g,
-      replayCourt('c1', 'g2', [point('A'), point('A'), point('A')], gameFor),
+      replayCourt('c1', 'g1b', [point('A'), point('A'), point('A')], gameFor),
     );
-    expect(newlyActive(before, after).map((r) => r.key)).toEqual(['g2-a1:A', 'g2-a2:B']);
+    expect(newlyActive(before, after).map((r) => r.key)).toEqual(['g1b-a1:A', 'g1b-a2:B']);
   });
 });
 
@@ -239,7 +239,7 @@ describe('metrics', () => {
         packId: 'x',
         planId: 'p2',
         startedAt: 0,
-        courts: [{ id: 'c1', label: 'Court 1', gameId: 'g2' }],
+        courts: [{ id: 'c1', label: 'Court 1', gameId: 'g1b' }],
         events,
         notes: '',
       },
@@ -248,11 +248,11 @@ describe('metrics', () => {
     );
     expect(summary.games[0]?.finalMargin).toBe(2);
     expect(summary.games[0]?.maxMargin).toBe(3);
-    expect(summary.adaptationsTriggered).toBe(2); // lead by 3 (A) and trail by 3 (B)
+    expect(summary.adaptationsTriggered).toBe(3); // lead by 3 (A), trail by 3 (B), then A won the game
     expect(summary.closeGameShare).toBe(1);
     expect(
       closeness({
-        gameId: 'g2',
+        gameId: 'g1b',
         score: { A: 0, B: 0 },
         winner: null,
         margins: [],
@@ -281,7 +281,7 @@ describe('metrics with plan blocks', () => {
         planId: 'p2',
         startedAt: 0,
         endedAt: 5000,
-        courts: [{ id: 'c1', label: 'Court 1', gameId: 'g2' }],
+        courts: [{ id: 'c1', label: 'Court 1', gameId: 'g1b' }],
         events,
         notes: '',
       },
