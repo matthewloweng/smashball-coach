@@ -38,7 +38,13 @@ export class TallyTabComponent {
   /** Suggested labels for what is being watched. */
   protected readonly contexts = computed(() => {
     if (this.sheetId() === 'gpai') {
-      return ['Coach, before block', 'Coach, after block', 'Player observer', 'Class totals'];
+      return [
+        'Coach, before block',
+        'Coach, after block',
+        'Player observer',
+        'Class totals, before block',
+        'Class totals, after block',
+      ];
     }
     const plan = this.store.plan();
     const code = plan ? this.templates.game(plan.gameId).code : 'Game';
@@ -95,6 +101,14 @@ export class TallyTabComponent {
       const kind = this.store.block()?.kind;
       const contexts = this.contexts();
       if (this.context() !== null) return;
+      if (this.sheetId() === 'gpai') {
+        // "After" once the plan's practice block has started.
+        const blocks = this.store.plan()?.blocks ?? [];
+        const practiceAt = blocks.findIndex((b) => b.kind === 'practice');
+        const after = practiceAt >= 0 && this.store.blockIndex() >= practiceAt;
+        this.context.set(after ? contexts[1]! : contexts[0]!);
+        return;
+      }
       if (this.sheetId() !== 'contact-count') {
         this.context.set(contexts[0]!);
         return;
