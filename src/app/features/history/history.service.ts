@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { CourtSummary, summariseCourt } from '../../core/engine/metrics';
 import { DerivedValue, TallyRun, derivedValues, tallyRuns } from '../../core/engine/tally';
 import { Session } from '../../core/models/session.models';
-import { SessionPlan } from '../../core/models/template.models';
+import { SessionPlan, TallySheetTemplate } from '../../core/models/template.models';
 import { SettingsService } from '../../core/services/settings.service';
 import { TemplateService } from '../../core/services/template.service';
 import { SampleRepository } from '../../core/storage/sample.repository';
@@ -12,11 +12,13 @@ export interface SessionSummary {
   session: Session;
   plan: SessionPlan | null;
   courts: CourtSummary[];
-  counts: { run: TallyRun; derived: DerivedValue[] }[];
+  counts: { run: TallyRun; sheet: TallySheetTemplate | null; derived: DerivedValue[] }[];
 }
 
 export interface CountPoint {
   label: string;
+  /** From a simulated sample practice. */
+  sample: boolean;
   startedAt: number;
   values: Record<string, number | null>;
 }
@@ -53,20 +55,21 @@ export class HistoryService {
         summariseCourt(session, c.id, this.templates.gameFor, plan?.blocks ?? []),
       ),
       counts: tallyRuns(session.events, sheets).map((run) => {
-        const sheet = sheets.find((s) => s.id === run.sheetId);
-        return { run, derived: sheet ? derivedValues(run, sheet) : [] };
+        const sheet = sheets.find((s) => s.id === run.sheetId) ?? null;
+        return { run, sheet, derived: sheet ? derivedValues(run, sheet) : [] };
       }),
     };
   }
 
-  /** Every contact count across all practices, oldest first, for the comparison chart. */
-  countSeries(sessions: readonly Session[]): CountPoint[] {
+  /** Every count on one sheet across all practices, oldest first, for the comparison chart. */
+  countSeries(sessions: readonly Session[], sheetId: string): CountPoint[] {
     const points: CountPoint[] = [];
     for (const s of sessions) {
       const plan = this.planOrNull(s.planId);
-      for (const c of this.summarise(s).counts) {
+      for (const c of this.summarise(s).counts.filter((x) => x.run.sheetId === sheetId)) {
         points.push({
           label: `P${plan?.number ?? '?'} · ${c.run.context}${s.sample ? ' *' : ''}`,
+          sample: !!s.sample,
           startedAt: c.run.startedAt,
           values: Object.fromEntries(c.derived.map((d) => [d.key, d.value])),
         });
@@ -84,16 +87,16 @@ export class HistoryService {
     );
   }
 
-  /** Contact counts as CSV, one row per count. */
-  exportCountsCsv(sessions: readonly Session[]): string {
-    const sheet = this.templates.pack.tallySheets[0];
+  /** One sheet's counts (contact counts or GPAI) as CSV, one row per count. */
+  exportCountsCsv(sessions: readonly Session[], sheetId: string): string {
+    const sheet = this.templates.pack.tallySheets.find((s) => s.id === sheetId);
     if (!sheet) return '';
     const keys = sheet.counters.map((c) => c.key);
     const derived = sheet.derived.map((d) => d.key);
     const rows = [['practice', 'date', 'context', ...keys, ...derived].join(',')];
     for (const s of sessions) {
       const plan = this.planOrNull(s.planId);
-      for (const c of this.summarise(s).counts) {
+      for (const c of this.summarise(s).counts.filter((x) => x.run.sheetId === sheetId)) {
         const d = Object.fromEntries(c.derived.map((x) => [x.key, x.value]));
         rows.push(
           [

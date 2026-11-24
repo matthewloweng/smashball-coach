@@ -1,6 +1,26 @@
 <div class="card">
-  <p class="section-title flush">{{ sheet.name }} · {{ sheet.durationSec / 60 }} minutes</p>
-  <p class="small muted">{{ sheet.instructions }}</p>
+  @if (sheets.length > 1) {
+    <div class="contexts sheets" role="radiogroup" aria-label="What are you counting?">
+      @for (s of sheets; track s.id) {
+        <button
+          role="radio"
+          [attr.aria-checked]="sheetId() === s.id"
+          [class.on]="sheetId() === s.id"
+          (click)="selectSheet(s.id)"
+        >
+          {{ s.name }}
+        </button>
+      }
+    </div>
+  }
+
+  <p class="section-title flush">
+    {{ sheet().name }}
+    @if (sheet().durationSec > 0) {
+      · {{ sheet().durationSec / 60 }} minutes
+    }
+  </p>
+  <p class="small muted">{{ sheet().instructions }}</p>
 
   <div class="contexts" role="radiogroup" aria-label="What are you watching?">
     @for (c of contexts(); track c) {
@@ -17,7 +37,7 @@
 
   <ion-button expand="block" (click)="startRun()">
     <ion-icon slot="start" name="stopwatch" />
-    Start a new count
+    {{ sheet().durationSec > 0 ? 'Start a new count' : 'Start a new observation' }}
   </ion-button>
 </div>
 
@@ -26,13 +46,13 @@
     <div class="run-head">
       <span>
         <strong>{{ r.context }}</strong>
-        <span class="small muted">Count {{ runs().length }} this practice</span>
+        <span class="small muted">{{ sheet().name }} {{ runs().length }} this practice</span>
       </span>
       <span class="clock" [class.done]="(remaining() ?? 1) <= 0">{{ clock() }}</span>
     </div>
 
     <div class="taps">
-      @for (c of taps; track c.key) {
+      @for (c of taps(); track c.key) {
         <div class="tap">
           <button class="tap-main" (click)="tap(c, 1)">
             <span class="tap-value">{{ value(c.key) }}</span>
@@ -49,7 +69,7 @@
       }
     </div>
 
-    @for (c of numbers; track c.key) {
+    @for (c of numbers(); track c.key) {
       <div class="stepper">
         <span>{{ c.label }}</span>
         <span class="stepper-controls">
@@ -76,13 +96,17 @@
 }
 
 @if (runs().length > 1) {
-  <p class="section-title">Earlier counts this practice</p>
+  <p class="section-title">Earlier this practice</p>
   @for (r of runs().slice(0, -1); track r.runId) {
     <div class="card earlier small">
       <strong>{{ r.context }}</strong>
       <span class="muted">
-        {{ r.values['contacts'] ?? 0 }} contacts · {{ r.values['rallies'] ?? 0 }} rallies ·
-        {{ r.values['threeContact'] ?? 0 }} pass-set-attack
+        @if (r.sheetId === 'contact-count') {
+          {{ r.values['contacts'] ?? 0 }} contacts · {{ r.values['rallies'] ?? 0 }} rallies ·
+          {{ r.values['threeContact'] ?? 0 }} pass-set-attack
+        } @else {
+          {{ summary(r) }}
+        }
       </span>
     </div>
   }

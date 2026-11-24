@@ -94,10 +94,15 @@
     }
 
     @if (s.counts.length) {
-      <p class="section-title">Contact counts</p>
+      <p class="section-title">Counts</p>
       @for (c of s.counts; track c.run.runId) {
         <div class="card">
-          <h2>{{ c.run.context }}</h2>
+          <h2>
+            @if (c.run.sheetId !== 'contact-count' && c.sheet) {
+              {{ c.sheet.name }} ·
+            }
+            {{ c.run.context }}
+          </h2>
           <table>
             <tbody>
               @for (entry of c.derived; track entry.key) {
@@ -108,25 +113,34 @@
                   </td>
                 </tr>
               }
-              <tr>
-                <td>Contacts / rallies / pass-set-attack</td>
-                <td class="num">
-                  {{ c.run.values['contacts'] ?? 0 }} / {{ c.run.values['rallies'] ?? 0 }} /
-                  {{ c.run.values['threeContact'] ?? 0 }}
-                </td>
-              </tr>
-              <tr>
-                <td>Attacks faced / dug</td>
-                <td class="num">
-                  {{ c.run.values['attacksFaced'] ?? 0 }} / {{ c.run.values['attacksDug'] ?? 0 }}
-                </td>
-              </tr>
-              <tr>
-                <td>Longest rally / players</td>
-                <td class="num">
-                  {{ c.run.values['longestRally'] ?? 0 }} / {{ c.run.values['players'] ?? 0 }}
-                </td>
-              </tr>
+              @if (c.run.sheetId !== 'contact-count') {
+                @for (counter of c.sheet?.counters ?? []; track counter.key) {
+                  <tr>
+                    <td>{{ counter.label }}</td>
+                    <td class="num">{{ c.run.values[counter.key] ?? 0 }}</td>
+                  </tr>
+                }
+              } @else {
+                <tr>
+                  <td>Contacts / rallies / pass-set-attack</td>
+                  <td class="num">
+                    {{ c.run.values['contacts'] ?? 0 }} / {{ c.run.values['rallies'] ?? 0 }} /
+                    {{ c.run.values['threeContact'] ?? 0 }}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Attacks faced / dug</td>
+                  <td class="num">
+                    {{ c.run.values['attacksFaced'] ?? 0 }} / {{ c.run.values['attacksDug'] ?? 0 }}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Longest rally / players</td>
+                  <td class="num">
+                    {{ c.run.values['longestRally'] ?? 0 }} / {{ c.run.values['players'] ?? 0 }}
+                  </td>
+                </tr>
+              }
             </tbody>
           </table>
         </div>

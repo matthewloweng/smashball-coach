@@ -18,7 +18,7 @@ import { Session } from '../../core/models/session.models';
 import { TemplateService } from '../../core/services/template.service';
 import { BarChartComponent, BarDatum } from '../../shared/components/bar-chart.component';
 import { downloadText } from '../../shared/download';
-import { HistoryService } from './history.service';
+import { CountPoint, HistoryService } from './history.service';
 
 @Component({
   selector: 'app-history',
@@ -85,10 +85,17 @@ export class HistoryPage implements ViewWillEnter {
   private readonly templates = inject(TemplateService);
   protected readonly sessions = signal<Session[]>([]);
   protected readonly loaded = signal(false);
-  protected readonly metrics = this.templates.pack.tallySheets[0]?.derived ?? [];
+  protected readonly sheets = this.templates.pack.tallySheets;
 
-  protected readonly series = computed(() => this.history.countSeries(this.sessions()));
-  protected readonly hasSamples = computed(() => this.sessions().some((s) => s.sample));
+  /** One chart group per tally sheet (contact counts, GPAI) that has counts. */
+  protected readonly charts = computed(() =>
+    this.sheets
+      .map((sheet) => {
+        const series = this.history.countSeries(this.sessions(), sheet.id);
+        return { sheet, series, hasSamples: series.some((p) => p.sample) };
+      })
+      .filter((c) => c.series.length > 0),
+  );
 
   constructor() {
     addIcons({ chevronForward, download, copyOutline });
@@ -108,28 +115,30 @@ export class HistoryPage implements ViewWillEnter {
     }
   }
 
-  protected chart(key: string): BarDatum[] {
-    return this.series().map((p) => ({ label: p.label, value: p.values[key] ?? null }));
+  protected chart(series: readonly CountPoint[], key: string): BarDatum[] {
+    return series.map((p) => ({ label: p.label, value: p.values[key] ?? null }));
   }
 
-  protected exportCsv(): void {
+  protected exportCsv(sheetId: string): void {
+    const name = sheetId === 'contact-count' ? 'contact-counts' : sheetId;
     downloadText(
-      'smashball-contact-counts.csv',
-      this.history.exportCountsCsv(this.sessions()),
+      `smashball-${name}.csv`,
+      this.history.exportCountsCsv(this.sessions(), sheetId),
       'text/csv',
     );
   }
 
-  protected readonly copied = signal(false);
+  /** The sheet whose CSV was just copied, for the button label. */
+  protected readonly copied = signal<string | null>(null);
 
   /** Copy works where downloads are blocked (e.g. inside an embedded viewer). */
-  protected async copyCsv(): Promise<void> {
+  protected async copyCsv(sheetId: string): Promise<void> {
     try {
-      await navigator.clipboard.writeText(this.history.exportCountsCsv(this.sessions()));
-      this.copied.set(true);
-      setTimeout(() => this.copied.set(false), 2000);
+      await navigator.clipboard.writeText(this.history.exportCountsCsv(this.sessions(), sheetId));
+      this.copied.set(sheetId);
+      setTimeout(() => this.copied.set(null), 2000);
     } catch {
-      this.copied.set(false);
+      this.copied.set(null);
     }
   }
 

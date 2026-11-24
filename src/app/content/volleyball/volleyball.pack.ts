@@ -1,6 +1,46 @@
 // The volleyball template pack: the four core games, two scoring variations, practice plans and task cards from
 // the EPHE 437 project. Plain data only, so it can be exported as JSON (Phase 2).
-import { TemplatePack } from '../../core/models/template.models';
+import { TallySheetTemplate, TemplatePack } from '../../core/models/template.models';
+
+/**
+ * GPAI (Game Performance Assessment Instrument) columns, as on the class
+ * form: a tick for an appropriate response, an X for an inappropriate one.
+ */
+const GPAI_COMPONENTS = [
+  { key: 'skill', label: 'Skill' },
+  { key: 'base', label: 'Base (Recover)' },
+  { key: 'decision', label: 'Decision (Read)' },
+  { key: 'cover', label: 'Cover (Respond)' },
+  { key: 'adjust', label: 'Adjust (React)' },
+  { key: 'support', label: 'Support' },
+];
+
+/** Built from the list above; the result is still plain data. */
+function gpaiSheet(): TallySheetTemplate {
+  return {
+    id: 'gpai',
+    name: 'GPAI',
+    // Untimed: an observation lasts as many points as you watch.
+    durationSec: 0,
+    instructions:
+      'Watch one player (no names). As each point is played, tap ✓ for an appropriate response or ✗ for an inappropriate one in each column, and tap "Points observed" when the point ends. After 2 points, give one piece of feedback on an off-the-ball movement.',
+    counters: [
+      ...GPAI_COMPONENTS.flatMap((c) => [
+        { key: `${c.key}Ok`, label: `${c.label} ✓`, input: 'tap' as const },
+        { key: `${c.key}X`, label: `${c.label} ✗`, input: 'tap' as const },
+      ]),
+      { key: 'points', label: 'Points observed', input: 'tap' },
+    ],
+    // The standard GPAI index for each component: appropriate / inappropriate.
+    derived: GPAI_COMPONENTS.map((c) => ({
+      key: `${c.key}Index`,
+      label: `${c.label} index (✓ per ✗)`,
+      numerator: `${c.key}Ok`,
+      denominator: `${c.key}X`,
+      format: 'ratio' as const,
+    })),
+  };
+}
 
 export const VOLLEYBALL_PACK: TemplatePack = {
   id: 'volleyball-smashball',
@@ -1391,6 +1431,7 @@ export const VOLLEYBALL_PACK: TemplatePack = {
         },
       ],
     },
+    gpaiSheet(),
   ],
   sessions: [
     {

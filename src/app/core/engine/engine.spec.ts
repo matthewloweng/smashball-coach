@@ -222,6 +222,39 @@ describe('tallies', () => {
     expect(d.find((x) => x.key === 'threeContactShare')?.display).toBe('50%');
     expect(d.find((x) => x.key === 'digRate')?.value).toBeNull();
   });
+
+  it('works out GPAI indices (ticks per X) for each column', () => {
+    const sheet = VOLLEYBALL_PACK.tallySheets.find((s) => s.id === 'gpai')!;
+    const t = (key: string) => ev({ type: 'tally', runId: 'g1', key, value: 1, mode: 'add' });
+    const events = [
+      ev({ type: 'tally.run', runId: 'g1', sheetId: 'gpai', context: 'Coach', durationSec: 0 }),
+      t('baseOk'),
+      t('baseOk'),
+      t('baseOk'),
+      t('baseX'),
+      t('baseX'),
+      t('supportOk'),
+      t('points'),
+      t('points'),
+    ];
+    const [run] = tallyRuns(events, VOLLEYBALL_PACK.tallySheets);
+    expect(run?.values).toMatchObject({ baseOk: 3, baseX: 2, supportOk: 1, points: 2 });
+    const d = derivedValues(run!, sheet);
+    expect(d.find((x) => x.key === 'baseIndex')?.display).toBe('1.5');
+    // No X yet: the index is undefined, not infinite.
+    expect(d.find((x) => x.key === 'supportIndex')?.value).toBeNull();
+  });
+
+  it('every derived ratio on every sheet points at real counters', () => {
+    for (const sheet of VOLLEYBALL_PACK.tallySheets) {
+      const keys = new Set(sheet.counters.map((c) => c.key));
+      expect(keys.size).toBe(sheet.counters.length);
+      for (const d of sheet.derived) {
+        expect(keys.has(d.numerator), `${sheet.id}.${d.key} numerator`).toBe(true);
+        expect(keys.has(d.denominator), `${sheet.id}.${d.key} denominator`).toBe(true);
+      }
+    }
+  });
 });
 
 describe('metrics', () => {
