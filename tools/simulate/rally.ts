@@ -5,6 +5,8 @@
  * developing high school team.
  */
 
+export type Position = 'S' | 'MB' | 'OH' | 'OPP' | 'L';
+
 export interface Ratings {
   serve: number;
   pass: number;
@@ -12,7 +14,28 @@ export interface Ratings {
   attack: number;
   block: number;
   dig: number;
+  /**
+   * Optional. When every player on a team has a position, the rally uses
+   * position-based passing, hitting and blocking (see the weights below).
+   * Without positions the original position-free model is used unchanged.
+   */
+  position?: Position;
 }
+
+type Skill = Exclude<keyof Ratings, 'position'>;
+
+/**
+ * Assumptions for position-aware play (not measured). Edit these to match
+ * your team. Weights are relative: 3 means three times as often as 1.
+ *
+ * PASS: who takes the first contact (serve receive or dig).
+ * BLOCK: who goes up to block a hard attack. Rotation is not modelled, so
+ *   these weights stand in for how often each position is front row and
+ *   blocking. Outsides and the libero never get block points.
+ * The libero never attacks.
+ */
+export const PASS_WEIGHT: Record<Position, number> = { L: 3, OH: 2, OPP: 1, MB: 1, S: 0.5 };
+export const BLOCK_WEIGHT: Record<Position, number> = { MB: 3, OPP: 2, S: 0.5, OH: 0, L: 0 };
 
 /** Temporary changes from adaptation rules and level-ups. */
 export interface Mods {
@@ -61,6 +84,8 @@ export interface RallyResult {
   /** The receiving team turned the first ball (serve or free ball) into a third-contact attack. */
   firstBallAttack: boolean;
   seconds: number;
+  /** Position of the player who blocked, for block points by positioned players. */
+  blockedBy: Position | null;
 }
 
 export type Rng = () => number;
@@ -83,7 +108,25 @@ function pick<T>(rng: Rng, items: readonly T[]): T {
   return items[Math.floor(rng() * items.length)]!;
 }
 
-function best(players: readonly Ratings[], key: keyof Ratings, except?: Ratings): Ratings {
+const positioned = (players: readonly Ratings[]) => players.every((p) => p.position);
+
+/** Picks a player with probability proportional to their position's weight. */
+function weighted(
+  rng: Rng,
+  players: readonly Ratings[],
+  weights: Record<Position, number>,
+): Ratings | null {
+  const total = players.reduce((s, p) => s + weights[p.position!], 0);
+  if (total <= 0) return null;
+  let x = rng() * total;
+  for (const p of players) {
+    x -= weights[p.position!];
+    if (x < 0) return p;
+  }
+  return players[players.length - 1]!;
+}
+
+function best(players: readonly Ratings[], key: Skill, except?: Ratings): Ratings {
   return players
     .filter((p) => p !== except)
     .reduce((a, b) => (b[key] > a[key] ? b : a), players[0]!);
@@ -111,6 +154,7 @@ export function playRally(
     attacks: [0, 0],
     firstBallAttack: false,
     seconds: 0,
+    blockedBy: null,
   };
   const end = (winner: 0 | 1, finish: FinishKind, shot: ShotKind | null = null): RallyResult => {
     r.winner = winner;
@@ -146,7 +190,9 @@ export function playRally(
     const m = team.mods;
 
     // First contact: pass or dig.
-    const first = pick(rng, team.players);
+    const first = positioned(team.players)
+      ? (weighted(rng, team.players, PASS_WEIGHT) ?? pick(rng, team.players))
+      : pick(rng, team.players);
     const skill = attacked ? first.dig - m.digPenalty : first.pass;
     const q1 = skill + m.passBonus - difficulty + (rng() - 0.5) * 0.5;
     if (attacked) r.attacksFaced[receiving]++;
@@ -187,7 +233,7 @@ export function playRally(
     }
 
     // Third contact: attack.
-    const hitters = team.players.filter((p) => p !== setter);
+    const hitters = team.players.filter((p) => p !== setter && p.position !== 'L');
     const hitter = hitters.length ? pick(rng, hitters) : setter;
     r.contacts[receiving]++;
     r.threeContact[receiving] = true;
@@ -202,14 +248,22 @@ export function playRally(
     if (rng() < errorChance) return end(opp, 'attackError');
 
     // Block.
-    const blocker = best(teams[opp].players, 'block');
-    const stuff = clamp(
-      0.06 + 0.28 * (blocker.block - teams[opp].mods.blockPenalty) - 0.12 * hitter.attack,
-      0.01,
-      0.3,
-    );
-    if (shot === 'hard' && rng() < stuff) {
+    // Position-aware: who goes up depends on position, and outsides and the
+    // libero never block. Otherwise the best blocker on the team blocks.
+    const blockers = teams[opp].players;
+    const blocker = positioned(blockers)
+      ? weighted(rng, blockers, BLOCK_WEIGHT)
+      : best(blockers, 'block');
+    const stuff = blocker
+      ? clamp(
+          0.06 + 0.28 * (blocker.block - teams[opp].mods.blockPenalty) - 0.12 * hitter.attack,
+          0.01,
+          0.3,
+        )
+      : 0;
+    if (shot === 'hard' && blocker && rng() < stuff) {
       r.contacts[opp]++;
+      r.blockedBy = blocker.position ?? null;
       return end(opp, 'block');
     }
 
