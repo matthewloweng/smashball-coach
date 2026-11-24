@@ -60,6 +60,17 @@ npx tsx tools/simulate/simulate.ts   # regenerate public/samples/sample-practice
 npx tsx tools/simulate/report.ts     # print a summary of each sample practice
 ```
 
+### Calibrating against your own team
+
+Give each player a `position` (`S`, `MB`, `OPP`, `OH`, `L`) and the rally model becomes position-aware: the libero and outsides take most first contacts, the libero never attacks, and only middles, the opposite and (rarely) the setter block. The weights are assumptions, set in `PASS_WEIGHT` and `BLOCK_WEIGHT` in `tools/simulate/rally.ts`. Players without positions, like the shipped sample squad, use the original model unchanged.
+
+```bash
+npx tsx tools/simulate/calibrate.ts roster.json                        # how points end with your ratings
+npx tsx tools/simulate/calibrate.ts roster.json --target-blocks 0.125  # scale block ratings so 1 in 8 of your points are blocks
+```
+
+The format of `roster.json` is described at the top of `calibrate.ts`. Keep it out of the repo: coach ratings describe real players. Results are a model built on estimated ratings, not observations.
+
 ## Run it
 
 ```bash
