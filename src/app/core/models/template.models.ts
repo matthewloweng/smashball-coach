@@ -278,7 +278,8 @@ export interface DerivedMetric {
   key: string;
   label: string;
   numerator: string;
-  denominator: string;
+  /** One counter, or several added together (e.g. ticks + Xs for a GPAI percentage). */
+  denominator: string | string[];
   format: 'ratio' | 'percent';
 }
 

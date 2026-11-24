@@ -31,14 +31,24 @@ function gpaiSheet(): TallySheetTemplate {
       ]),
       { key: 'points', label: 'Points observed', input: 'tap' },
     ],
-    // The standard GPAI index for each component: appropriate / inappropriate.
-    derived: GPAI_COMPONENTS.map((c) => ({
-      key: `${c.key}Index`,
-      label: `${c.label} index (✓ per ✗)`,
-      numerator: `${c.key}Ok`,
-      denominator: `${c.key}X`,
-      format: 'ratio' as const,
-    })),
+    // For each component: the share of marks that were ticks (as on the
+    // Level II sheets), then the original GPAI index, appropriate / inappropriate.
+    derived: GPAI_COMPONENTS.flatMap((c) => [
+      {
+        key: `${c.key}Pct`,
+        label: `${c.label} % appropriate`,
+        numerator: `${c.key}Ok`,
+        denominator: [`${c.key}Ok`, `${c.key}X`],
+        format: 'percent' as const,
+      },
+      {
+        key: `${c.key}Index`,
+        label: `${c.label} index (✓ per ✗)`,
+        numerator: `${c.key}Ok`,
+        denominator: `${c.key}X`,
+        format: 'ratio' as const,
+      },
+    ]),
   };
 }
 

@@ -149,6 +149,11 @@
   span {
     display: block;
   }
+
+  // GPAI: one row per column, % appropriate beside its index.
+  &.pairs {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .derived-value {

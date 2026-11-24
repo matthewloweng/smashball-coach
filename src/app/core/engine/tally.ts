@@ -63,7 +63,10 @@ function startRun(e: TallyRunEvent): TallyRun {
 export function derivedValues(run: TallyRun, sheet: TallySheetTemplate): DerivedValue[] {
   return sheet.derived.map((d) => {
     const num = run.values[d.numerator] ?? 0;
-    const den = run.values[d.denominator];
+    const den = (Array.isArray(d.denominator) ? d.denominator : [d.denominator]).reduce(
+      (sum, k) => sum + (run.values[k] ?? 0),
+      0,
+    );
     const value = den ? num / den : null;
     let display = '–';
     if (value !== null) {
