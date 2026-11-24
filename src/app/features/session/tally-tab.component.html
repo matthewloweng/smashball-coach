@@ -84,7 +84,7 @@
       </div>
     }
 
-    <div class="derived">
+    <div class="derived" [class.pairs]="sheetId() === 'gpai'">
       @for (d of derived(); track d.key) {
         <div>
           <span class="derived-value">{{ d.display }}</span>

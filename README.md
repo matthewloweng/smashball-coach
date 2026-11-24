@@ -7,7 +7,7 @@ It runs a play-practice-play session from your phone:
 - **Plan**: timed blocks (play, huddle, practice) with a countdown, vibration and a spoken cue when time is up. Huddle questions and task-card cues are on screen when you need them.
 - **Score**: one scoreboard per court for rally games, Monarch (king of the court) and big point/little point washes. Adaptation rules (modification-by-adaptation, Hopper 2011) are flagged live, such as "Pair A · Lead by 3: your short zone no longer scores 2".
 - **Count**: a 3-minute contact count with big tap buttons. It works out contacts per player, rallies with pass-set-attack, and the share of attacks dug.
-- **GPAI**: an untimed Game Performance Assessment Instrument observation on the same screen. Tap ✓ or ✗ for Skill, Base, Decision, Cover, Adjust and Support as each point is played, and the app works out each column's GPAI index (✓ per ✗). GPAI totals have their own charts and CSV in History.
+- **GPAI**: an untimed Game Performance Assessment Instrument observation on the same screen. Tap ✓ or ✗ for Skill, Base, Decision, Cover, Adjust and Support as each point is played, and the app works out each column's % appropriate (✓ out of all marks) and GPAI index (✓ per ✗). GPAI totals have their own charts and CSV in History.
 - **Levels**: Volleyball Canada's level-up rule (2 out of the last 3 serve-receives end in an attack) for each pair or trio.
 - **History**: every practice, with how close the games stayed, how often rules switched on, and count charts across practices. Exports to CSV or JSON.
 

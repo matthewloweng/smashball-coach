@@ -241,8 +241,12 @@ describe('tallies', () => {
     expect(run?.values).toMatchObject({ baseOk: 3, baseX: 2, supportOk: 1, points: 2 });
     const d = derivedValues(run!, sheet);
     expect(d.find((x) => x.key === 'baseIndex')?.display).toBe('1.5');
-    // No X yet: the index is undefined, not infinite.
+    expect(d.find((x) => x.key === 'basePct')?.display).toBe('60%');
+    // No X yet: the index is undefined, not infinite, but the percentage works.
     expect(d.find((x) => x.key === 'supportIndex')?.value).toBeNull();
+    expect(d.find((x) => x.key === 'supportPct')?.display).toBe('100%');
+    // Nothing marked: no percentage either.
+    expect(d.find((x) => x.key === 'skillPct')?.value).toBeNull();
   });
 
   it('every derived ratio on every sheet points at real counters', () => {
@@ -251,7 +255,9 @@ describe('tallies', () => {
       expect(keys.size).toBe(sheet.counters.length);
       for (const d of sheet.derived) {
         expect(keys.has(d.numerator), `${sheet.id}.${d.key} numerator`).toBe(true);
-        expect(keys.has(d.denominator), `${sheet.id}.${d.key} denominator`).toBe(true);
+        for (const k of [d.denominator].flat()) {
+          expect(keys.has(k), `${sheet.id}.${d.key} denominator ${k}`).toBe(true);
+        }
       }
     }
   });
