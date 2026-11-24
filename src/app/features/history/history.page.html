@@ -14,14 +14,14 @@
     </p>
   }
 
-  @if (series().length) {
-    <p class="section-title">Contact counts across practices</p>
+  @for (c of charts(); track c.sheet.id) {
+    <p class="section-title">{{ c.sheet.name }} across practices</p>
     <div class="card">
-      @if (hasSamples()) {
+      @if (c.hasSamples) {
         <p class="muted small">* Sample practice (simulated). Hide samples in settings.</p>
       }
-      @for (m of metrics; track m.key) {
-        <app-bar-chart [title]="m.label" [data]="chart(m.key)" [format]="m.format" />
+      @for (m of c.sheet.derived; track m.key) {
+        <app-bar-chart [title]="m.label" [data]="chart(c.series, m.key)" [format]="m.format" />
       }
     </div>
   }
@@ -47,14 +47,22 @@
     }
 
     <div class="exports">
-      <ion-button fill="outline" size="small" (click)="exportCsv()">
-        <ion-icon slot="start" name="download" />
-        Counts (CSV)
-      </ion-button>
-      <ion-button fill="outline" size="small" (click)="copyCsv()">
-        <ion-icon slot="start" name="copy-outline" />
-        {{ copied() ? 'Copied' : 'Copy counts' }}
-      </ion-button>
+      @for (sheet of sheets; track sheet.id) {
+        <ion-button fill="outline" size="small" (click)="exportCsv(sheet.id)">
+          <ion-icon slot="start" name="download" />
+          {{ sheet.id === 'contact-count' ? 'Counts' : sheet.name }} (CSV)
+        </ion-button>
+        <ion-button fill="outline" size="small" (click)="copyCsv(sheet.id)">
+          <ion-icon slot="start" name="copy-outline" />
+          {{
+            copied() === sheet.id
+              ? 'Copied'
+              : sheet.id === 'contact-count'
+                ? 'Copy counts'
+                : 'Copy ' + sheet.name
+          }}
+        </ion-button>
+      }
       <ion-button fill="outline" size="small" (click)="exportJson()">
         <ion-icon slot="start" name="download" />
         All data (JSON)

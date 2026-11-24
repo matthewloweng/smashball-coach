@@ -21,7 +21,8 @@ for (const s of sessions) {
     );
   }
   for (const r of tallyRuns(s.events, VOLLEYBALL_PACK.tallySheets)) {
-    const d = derivedValues(r, VOLLEYBALL_PACK.tallySheets[0]!);
+    const sheet = VOLLEYBALL_PACK.tallySheets.find((x) => x.id === r.sheetId);
+    const d = sheet ? derivedValues(r, sheet) : [];
     console.log(
       `  count "${r.context}": ${JSON.stringify(r.values)} -> ${d.map((x) => `${x.label}: ${x.display}`).join(', ')}`,
     );
